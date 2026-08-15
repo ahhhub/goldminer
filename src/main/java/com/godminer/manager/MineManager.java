@@ -11,8 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * 矿场管理器 - 负责地面矿场的生成和刷新
@@ -22,7 +20,7 @@ public class MineManager {
 
     private final GoldMiner plugin;
     private final Map<String, BukkitTask> refreshTasks;
-    private final Map<String, Set<Location>> mineBlocks;
+    private final Map<String, BukkitTask> refreshBatchTasks; // 分批刷新任务
     private final Map<String, Location> mineCenterCache;
     private final Map<String, Integer> refreshCountdowns; // 世界名 -> 剩余秒数
     private final Map<String, Integer> refreshIntervals;   // 世界名 -> 刷新间隔
@@ -30,7 +28,7 @@ public class MineManager {
     public MineManager(GoldMiner plugin) {
         this.plugin = plugin;
         this.refreshTasks = new HashMap<>();
-        this.mineBlocks = new HashMap<>();
+        this.refreshBatchTasks = new HashMap<>();
         this.mineCenterCache = new HashMap<>();
         this.refreshCountdowns = new HashMap<>();
         this.refreshIntervals = new HashMap<>();
@@ -43,18 +41,15 @@ public class MineManager {
         int centerSize = plugin.getConfig().getInt("mine.center-size", 100);
         int halfSize = centerSize / 2;
         String worldName = world.getName();
-        Set<Location> blocks = ConcurrentHashMap.newKeySet();
 
         // 从 y=0 开始在地面上生成矿场立方体
+        int generated = 0;
         for (int x = -halfSize; x <= halfSize; x++) {
             for (int y = 0; y < centerSize; y++) {
                 for (int z = -halfSize; z <= halfSize; z++) {
                     Material blockType = rollBlock();
-                    Location loc = new Location(world, x, y, z);
-                    loc.getBlock().setType(blockType, false);
-                    if (blockType != Material.AIR) {
-                        blocks.add(loc);
-                    }
+                    world.getBlockAt(x, y, z).setType(blockType, false);
+                    generated++;
                 }
             }
         }
@@ -69,9 +64,8 @@ public class MineManager {
             }
         }
 
-        mineBlocks.put(worldName, blocks);
         mineCenterCache.put(worldName, new Location(world, 0.5, platformY + 1, 0.5));
-        plugin.getLogger().info("矿场世界 " + worldName + " 地面矿场已生成，方块数: " + blocks.size());
+        plugin.getLogger().info("矿场世界 " + worldName + " 地面矿场已生成，方块数: " + generated);
     }
 
     private Material rollBlock() {
@@ -131,22 +125,11 @@ public class MineManager {
     }
 
     /**
-     * 检查玩家位置安全并刷新矿场（先刷新再检查安全）
+     * 检查玩家位置安全并刷新矿场
      */
     private void checkAndRefreshMine(World world) {
-        // 先执行刷新
+        // 分批刷新（完成时自动执行安全检查）
         refreshMine(world);
-
-        // 刷新后检查每个玩家是否被卡在方块中
-        Location safeLoc = getSafeLocation(world);
-        for (Player player : world.getPlayers()) {
-            if (!isPlayerSafe(player)) {
-                player.teleport(safeLoc);
-                String msg = plugin.getLangConfig().getString("mine.unsafe-teleport",
-                        "&c检测到你在危险区域，已将你传送到安全区域！");
-                com.godminer.util.MessageUtil.sendMessage(player, msg);
-            }
-        }
     }
 
     /**
@@ -186,6 +169,21 @@ public class MineManager {
     }
 
     /**
+     * 刷新完成后传送被卡住的玩家
+     */
+    private void checkPlayerSafety(World world) {
+        Location safeLoc = getSafeLocation(world);
+        for (Player player : world.getPlayers()) {
+            if (!isPlayerSafe(player)) {
+                player.teleport(safeLoc);
+                String msg = plugin.getLangConfig().getString("mine.unsafe-teleport",
+                        "&c检测到你在危险区域，已将你传送到安全区域！");
+                com.godminer.util.MessageUtil.sendMessage(player, msg);
+            }
+        }
+    }
+
+    /**
      * 获取矿场安全位置
      */
     public Location getSafeLocation(World world) {
@@ -204,82 +202,58 @@ public class MineManager {
     }
 
     /**
-     * 刷新矿场 - 完全重新随机生成所有方块
+     * 刷新矿场 - 分批重新随机生成整个矿场立方体的所有方块
+     * 每 tick 处理一批（默认20000块），避免主线程一次性处理百万方块造成卡顿
+     * 刷新完成后自动检查玩家安全
      */
     public void refreshMine(World world) {
         String worldName = world.getName();
-        Set<Location> blocks = mineBlocks.get(worldName);
 
-        // 如果方块列表为空（如服务器重启后），重建追踪列表
-        if (blocks == null || blocks.isEmpty()) {
-            blocks = rebuildMineBlockList(world);
-            if (blocks.isEmpty()) {
-                plugin.getLogger().warning("矿场 " + worldName + " 无有效方块，请先执行 /goldminer join 生成矿场！");
-                return;
-            }
-        }
+        // 取消正在进行的批次
+        BukkitTask old = refreshBatchTasks.remove(worldName);
+        if (old != null) old.cancel();
 
-        int refreshed = 0;
-        for (Location loc : blocks) {
-            Material newType = rollBlock();
-            loc.getBlock().setType(newType, false);
-            refreshed++;
-        }
-
-        if (refreshed > 0) {
-            plugin.getLogger().info("矿场 " + worldName + " 已刷新 " + refreshed + " 个方块。");
-        }
-    }
-
-    /**
-     * 重建矿场方块追踪列表（服务器重启后恢复，不改变方块）
-     */
-    private Set<Location> rebuildMineBlockList(World world) {
         int centerSize = plugin.getConfig().getInt("mine.center-size", 100);
         int halfSize = centerSize / 2;
-        String worldName = world.getName();
-        Set<Location> blocks = ConcurrentHashMap.newKeySet();
+        int xSize = halfSize * 2 + 1;
+        int zSize = halfSize * 2 + 1;
+        int total = xSize * centerSize * zSize;
+        int batchSize = Math.max(1000, plugin.getConfig().getInt("mine.refresh-batch-size", 20000));
 
-        for (int x = -halfSize; x <= halfSize; x++) {
-            for (int y = 0; y < centerSize; y++) {
-                for (int z = -halfSize; z <= halfSize; z++) {
-                    Location loc = new Location(world, x, y, z);
-                    if (loc.getBlock().getType() != Material.AIR) {
-                        blocks.add(loc);
-                    }
+        final int[] cursor = {0};
+        final int fHalf = halfSize, fXSize = xSize, fZSize = zSize, fTotal = total, fCenterSize = centerSize;
+
+        BukkitTask task = new BukkitRunnable() {
+            @Override
+            public void run() {
+                int processed = 0;
+                while (cursor[0] < fTotal && processed < batchSize) {
+                    int idx = cursor[0]++;
+                    int y = idx / (fXSize * fZSize);
+                    int rem = idx % (fXSize * fZSize);
+                    int zOff = rem / fXSize;
+                    int xOff = rem % fXSize;
+                    world.getBlockAt(-fHalf + xOff, y, -fHalf + zOff).setType(rollBlock(), false);
+                    processed++;
+                }
+
+                if (cursor[0] >= fTotal) {
+                    refreshBatchTasks.remove(worldName);
+                    plugin.getLogger().info("矿场 " + worldName + " 已刷新完成，共 " + fTotal + " 个方块。");
+                    checkPlayerSafety(world);
+                    cancel();
                 }
             }
-        }
+        }.runTaskTimer(plugin, 1L, 1L);
 
-        mineBlocks.put(worldName, blocks);
-        plugin.getLogger().info("矿场 " + worldName + " 方块追踪列表已重建，方块数: " + blocks.size());
-        return blocks;
-    }
-
-    public void registerMineBlock(Location loc) {
-        String worldName = loc.getWorld().getName();
-        Set<Location> blocks = mineBlocks.computeIfAbsent(worldName, k -> ConcurrentHashMap.newKeySet());
-        blocks.add(loc);
-    }
-
-    public void unregisterMineBlock(Location loc) {
-        String worldName = loc.getWorld().getName();
-        Set<Location> blocks = mineBlocks.get(worldName);
-        if (blocks != null) {
-            blocks.remove(loc);
-        }
-    }
-
-    public boolean isInMine(Location loc) {
-        String worldName = loc.getWorld().getName();
-        Set<Location> blocks = mineBlocks.get(worldName);
-        if (blocks == null) return false;
-        return blocks.contains(loc);
+        refreshBatchTasks.put(worldName, task);
+        plugin.getLogger().info("矿场 " + worldName + " 开始分批刷新，共 " + total + " 方块，每tick " + batchSize + " 块。");
     }
 
     public void cleanupWorld(String worldName) {
         stopRefreshTask(worldName);
-        mineBlocks.remove(worldName);
+        BukkitTask batchTask = refreshBatchTasks.remove(worldName);
+        if (batchTask != null) batchTask.cancel();
         mineCenterCache.remove(worldName);
         refreshCountdowns.remove(worldName);
         refreshIntervals.remove(worldName);
@@ -288,7 +262,8 @@ public class MineManager {
     public void shutdown() {
         refreshTasks.values().forEach(BukkitTask::cancel);
         refreshTasks.clear();
-        mineBlocks.clear();
+        refreshBatchTasks.values().forEach(BukkitTask::cancel);
+        refreshBatchTasks.clear();
         mineCenterCache.clear();
         refreshCountdowns.clear();
         refreshIntervals.clear();

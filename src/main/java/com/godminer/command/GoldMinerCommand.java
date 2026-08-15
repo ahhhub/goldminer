@@ -6,7 +6,6 @@ import com.godminer.model.Team;
 import com.godminer.manager.ShopManager;
 import com.godminer.util.MessageUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.*;
 import org.bukkit.configuration.ConfigurationSection;
@@ -563,15 +562,9 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
                 MessageUtil.sendMessage(sender, "&c矿场世界 " + worldName + " 未加载！请先让玩家执行 /goldminer join。");
                 return true;
             }
+            // 分批刷新（完成时自动进行玩家安全检查）
             plugin.getMineManager().refreshMine(mineWorld);
-            Location safeLoc = plugin.getMineManager().getSafeLocation(mineWorld);
-            for (Player p : mineWorld.getPlayers()) {
-                if (!isPlayerSafeInMine(p)) {
-                    p.teleport(safeLoc);
-                    MessageUtil.sendMessage(p, "&c矿池刷新后检测到你处于危险位置，已传送至安全区域！");
-                }
-            }
-            MessageUtil.sendMessage(sender, "&a矿池已强制刷新！矿物已根据配置重新生成。");
+            MessageUtil.sendMessage(sender, "&a矿池已开始刷新！矿物将分批重新生成。");
             return true;
         }
 
@@ -614,17 +607,6 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
 
         MessageUtil.sendMessage(sender, "&e用法: &a/goldminer reload [pool|info]");
         return true;
-    }
-
-    private boolean isPlayerSafeInMine(Player player) {
-        var loc = player.getLocation();
-        int centerSize = plugin.getConfig().getInt("mine.center-size", 100);
-        int halfSize = centerSize / 2;
-        if (Math.abs(loc.getBlockX()) > halfSize + 5 || Math.abs(loc.getBlockZ()) > halfSize + 5) return true;
-        if (loc.getBlockY() < 0 || loc.getBlockY() > centerSize + 10) return true;
-        var feet = loc.clone();
-        var head = loc.clone().add(0, 1, 0);
-        return !feet.getBlock().getType().isSolid() && !head.getBlock().getType().isSolid();
     }
 
     private boolean handleSuit(CommandSender sender) {
