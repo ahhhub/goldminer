@@ -1,0 +1,149 @@
+# GoldMiner 语言文件
+# ====================
+
+prefix: "&8[&6GoldMiner&8]&r "
+
+# 通用消息
+messages:
+  no-permission: "&c你没有权限执行此命令！"
+  player-only: "&c该命令只能由玩家执行！"
+  reload: "&a配置已重新加载！"
+  unknown-command: "&c未知的子命令，请使用 &e/goldminer help &c查看帮助。"
+
+# 加入游戏
+join:
+  creating-world: "&a正在准备矿场世界，请稍候..."
+  world-created: "&a矿场世界准备完成！正在传送..."
+  teleported: "&a欢迎来到矿场！使用原初之镐开始挖掘吧！"
+  already-in-mine: "&c你已经在矿场中了！"
+
+# 矿场消息
+mine:
+  unsafe-teleport: "&c检测到你在危险区域，已将你传送到安全区域！"
+
+# 小队消息
+team:
+  create-prompt: "&a请在聊天栏输入小队名称，输入 &cC &a取消。"
+  create-cancelled: "&c小队创建已取消！"
+  create-success: "&a小队 &e{team} &a创建成功！你是队长。"
+  name-taken: "&c该小队名称已被使用！"
+  already-in-team: "&c你已经在一个小队中！"
+  not-in-team: "&c你不在任何小队中！"
+  no-team: "&c该小队不存在！"
+  join-usage: "&e使用 &a/goldminer team join <队名> &e来加入小队。"
+  application-submitted: "&a你的入队申请已提交！"
+  application-received: "&e你有一个入队申请，玩家 &b{player} &e希望加入你的队伍。使用 &a/goldminer team accept &e同意所有申请，或 &a/goldminer team accept <玩家名> &e同意对应玩家的申请。"
+  application-offline-stored: "&a你的申请已提交（队长不在线，将在上线后通知）。"
+  application-no-pending: "&c没有待处理的入队申请！"
+  accept-success: "&a玩家 &e{player} &a已加入你的小队！"
+  accept-all-success: "&a所有待处理的入队申请已通过！"
+  leave-success: "&a你已退出小队，经验和等级已清空。"
+  leave-success-broadcast: "&e{player} &c离开了小队。"
+  team-full: "&c该小队已满员！"
+  list-header: "&6===== 小队列表 ====="
+  list-entry: "&e{index}. &b{team} &7- 队长: &a{leader} &7- 成员数: &e{size}"
+  list-empty: "&7当前没有小队。"
+  max-members: 10
+
+# 排行榜
+leaderboard:
+  header: "&6===== 矿场排行榜 ====="
+  entry: "&e{index}. &b{player} &7- 金币: &6{gold} &7- 等级: &a{level}"
+  empty: "&7暂无排行数据。"
+
+# 货币兑换
+exchange:
+  title: "&6金币兑换"
+  current-gold: "&e当前矿场金币: &6{gold}"
+  prompt-amount: "&a请输入你要兑换的金币数量："
+  insufficient: "&c金币不足！兑换失败。"
+  success: "&a成功兑换 &6{amount} &a矿场金币为 &6{converted} &a软妹币！"
+  rate-info: "&7汇率: 1矿场金币 = {rate}软妹币"
+
+# 挖掘消息
+mining:
+  coin-earned: "&6+{coin} 金币 &7| &a+{exp} 经验"
+  level-up: "&a恭喜！你的矿工等级提升到了 &e{level} &a级！"
+  pickaxe-upgrade: "&a你的镐子已升级为 &e{pickaxe}&a！"
+  enchant-upgrade: "&a你的镐子附魔已提升！"
+  chain-upgrade: "&a你的连锁挖矿已升级！"
+
+# 镐子名称
+pickaxe:
+  wood: "&7原初之镐"
+  stone: "&8石镐"
+  copper: "&6铜镐"
+  gold: "&e金镐"
+  iron: "&f铁镐"
+  diamond: "&b钻石镐"
+  netherite: "&5下界合金镐"
+
+# 盔甲/装备
+suit:
+  equipped: "&a装备已穿戴！"
+  unequipped: "&c装备已卸下！"
+  not-in-mine: "&c你需要在矿场中使用此命令！"
+
+# 玻璃
+glass:
+  name: "&f垫脚玻璃 &7(无限使用)"
+  lore: "&7可无限放置的玻璃方块"
+
+# Boss血条
+bossbar:
+  format: "&6矿工等级: &e{level} &7| &a经验值: &e{exp}&7/&e{max}"
+
+# GUI按钮文本
+gui:
+  main-menu: "&6矿场菜单"
+  exchange-menu: "&6金币兑换"
+  button:
+    return-spawn:
+      name: "&a返回主城"
+      lore1: "&7点击返回主城"
+      lore2: "&7执行: /{cmd}"
+    create-team:
+      name: "&b创建小队"
+      lore1: "&7点击创建一个小队"
+      lore2: "&7你将自动成为队长"
+    join-team:
+      name: "&e申请加入小队"
+      lore1: "&7点击申请加入一个小队"
+      lore2: "&7使用方法: /goldminer team join <队名>"
+    leaderboard:
+      name: "&6排行榜"
+      lore1: "&7点击查看矿场排行榜"
+    currency-exchange:
+      name: "&e货币兑换"
+      lore1: "&7点击兑换矿场金币"
+    leave-team:
+      name: "&c退出小队"
+      lore1: "&7点击退出当前小队"
+      lore2: "&c注意: 经验和等级将会清空！"
+    suit-toggle:
+      name: "&d装备切换"
+      lore1: "&7点击切换装备显示/隐藏"
+
+# 盔甲名称
+armor:
+  leather:
+    name: "新手矿工"
+    lore: "&7初入矿场的新手装备"
+  chainmail:
+    name: "入门矿工"
+    lore: "&7逐渐熟练的矿工装备"
+  copper:
+    name: "炼铜矿工"
+    lore: "&6铜制矿工装备"
+  golden:
+    name: "黄金矿工"
+    lore: "&6闪耀的黄金矿工装备"
+  iron:
+    name: "八级矿工"
+    lore: "&f坚固的铁制矿工装备"
+  diamond:
+    name: "寰宇矿工"
+    lore: "&b璀璨的钻石矿工装备"
+  netherite:
+    name: "无尽矿工"
+    lore: "&5传说中的下界合金矿工装备"

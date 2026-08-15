@@ -1,0 +1,118 @@
+# GoldMiner 商店配置
+# ====================
+# 所有价格均可通过 /goldminer shop set <key> <价格> 即时修改
+# 也可直接编辑此文件后执行 /goldminer reload 重载
+
+# 药水商店设置
+potion:
+  # 可用时长（秒）
+  available-durations: [30, 60, 300, 600, 1800, 3600]
+  # 最大药水等级
+  max-level: 30
+
+  # 急迫药水
+  haste:
+    base-price: 30
+    level-multiplier: 0.5
+    duration-multiplier: 0.3
+
+  # 速度药水
+  speed:
+    base-price: 30
+    level-multiplier: 0.5
+    duration-multiplier: 0.3
+
+  # 幸运药水
+  luck:
+    base-price: 30
+    level-multiplier: 0.5
+    duration-multiplier: 0.3
+
+# 暴击率商店（永久）
+crit-rate:
+  base-price: 300
+  tiers:
+    0.5pct: 1.0
+    1pct: 3.0
+    5pct: 15.0
+    10pct: 50.0
+    50pct: 300.0
+
+# 暴击倍率商店（30分钟有效）
+crit-mag:
+  base-price: 150
+  duration-seconds: 1800
+  tiers:
+    x1: 1.0
+    x5: 8.0
+    x8: 20.0
+    x10: 35.0
+    x15: 70.0
+    x20: 150.0
+
+# 等级购买
+level-buy:
+  exp-price-rate: 0.5
+
+# 连锁体验卡商店（矿场世界内生效，30秒）
+# 价格公式: 基础价格 × 阶梯倍率^(方块数-1)
+# 例: plane_x, blocks=3 → 8000 × 3.0^2 = 72000 金币
+chain-card:
+  duration-seconds: 30
+  # 平面X轴连锁
+  plane_x:
+    base-price: 8000
+    tier-multiplier: 3.0
+    max-blocks: 9
+  # 平面Z轴连锁
+  plane_z:
+    base-price: 8000
+    tier-multiplier: 3.0
+    max-blocks: 9
+  # 半径连锁
+  radius:
+    base-price: 15000
+    tier-multiplier: 3.5
+    max-radius: 9
+  # 视角方向连锁
+  ray:
+    base-price: 6000
+    tier-multiplier: 2.5
+    max-blocks: 15
+    absolute-max: 15
+  ray-overflow-msg: "&e本次购买已叠加至上限，暂不返还溢出长度，此后购买仅叠加生效时长。"
+
+# 一般连锁（矿场世界外全地图生效，3小时）
+global-chain:
+  price: 100
+  duration-seconds: 10800
+  effect-name: "&d&l一般连锁"
+  potion-display: true
+
+# 消息配置
+messages:
+  insufficient-coins: "&c金币不足！当前金币余额：&6{balance} &c购买当前商品所需金币：&6{price} &c当前还差：&6{diff}"
+  potion-purchased: "&a成功购买&e {potion} Lv.{level} &a时长&e {duration} &a花费&6 {price} 金币"
+  crit-rate-full: "&c爆率已满，无需再购买此道具。"
+  crit-rate-overflow: "&a暴击率已满！溢出部分已转换为&e {exp} &a经验值。"
+  crit-rate-purchased: "&a成功购买暴击率&e +{rate} &a当前暴击率: &e{current}% &a花费&6 {price} 金币"
+  crit-mag-purchased: "&a成功购买暴击倍率&e +{mag}倍 &a当前额外倍率:&e {total}倍 &a剩余时间:&e {time} &a花费&6 {price} 金币"
+  level-purchased: "&a成功购买&e {levels} &a个等级！&7(&e{from}&7→&e{to}&7) &a花费&6 {price} 金币"
+  chain-card-purchased: "&a成功购买&e {card} &a范围&e {blocks} &a时长&e 30秒 &a花费&6 {price} 金币"
+  chain-card-extended: "&a已叠加&e {card} &a时长，当前剩余&e {time}"
+  chain-card-overwritten: "&e已切换为新的连锁类型&e {card}&e，旧效果已覆盖（不返还金币）"
+  chain-card-height-full: "&c高度已满，无法购买。"
+  global-chain-purchased: "&a成功购买&d一般连锁&a！&7(&e所有世界生效&7) &a花费&6 100 金币"
+
+# 商店图标配置
+shop-icons:
+  chain-card-plane-x: OAK_PLANKS
+  chain-card-plane-z: OAK_PLANKS
+  chain-card-radius: STONE
+  chain-card-ray: ARROW
+
+# 垫脚玻璃配置
+glass-block:
+  material: GLASS
+  name: "&f垫脚玻璃 &7(无限使用)"
+  lore: "&7可无限放置的玻璃方块"

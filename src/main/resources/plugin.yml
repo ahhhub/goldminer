@@ -1,0 +1,55 @@
+name: GoldMiner
+version: 2.1.3
+main: com.godminer.GoldMiner
+api-version: "1.21"
+author: 未定awa
+description: A mining mini-game plugin for Purpur server
+depend:
+  - Multiverse-Core
+  - Vault
+softdepend:
+  - PlaceholderAPI
+  - Multiverse-Portals
+  - Multiverse-NetherPortals
+  - Multiverse-Inventories
+
+commands:
+  goldminer:
+    description: GoldMiner 主命令
+    usage: /goldminer <join|shop|info|buy|suit|team|top|exchange|reload|help>
+    aliases: [gm, gminer]
+
+permissions:
+  goldminer.use:
+    description: 使用 GoldMiner 基本命令
+    default: true
+  goldminer.join:
+    description: 加入矿场
+    default: true
+  goldminer.suit:
+    description: 切换装备显示
+    default: true
+  goldminer.team.create:
+    description: 创建小队
+    default: true
+  goldminer.team.join:
+    description: 加入小队
+    default: true
+  goldminer.team.accept:
+    description: 接受入队申请
+    default: true
+  goldminer.team.leave:
+    description: 退出小队
+    default: true
+  goldminer.team.list:
+    description: 查看小队列表
+    default: true
+  goldminer.top:
+    description: 查看排行榜
+    default: true
+  goldminer.exchange:
+    description: 货币兑换
+    default: true
+  goldminer.admin:
+    description: 管理员权限（重载配置等）
+    default: op

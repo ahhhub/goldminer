@@ -1,0 +1,169 @@
+# GoldMiner 配置文件
+# ====================
+
+# 存储设置
+storage:
+  type: sqlite
+  mysql:
+    host: localhost
+    port: 3306
+    database: goldminer
+    username: root
+    password: password
+    useSSL: false
+    pool-size: 10
+
+# 矿场设置
+mine:
+  # 共享矿场世界名称（所有玩家共用）
+  world-name: "goldminer_mine"
+  # 矿场边界大小 (长宽)
+  border-size: 2000
+  # 矿场中心区域大小 (初始石头立方体边长)
+  center-size: 100
+  # 矿场刷新间隔 (秒)
+  refresh-interval: 30
+
+# 矿物品质生成概率 (总和必须为100%)
+mineral-rarity-probability:
+  common: 85.0
+  rare: 8.0
+  epic: 6.0
+  legendary: 1.0
+
+# 货币转换
+currency:
+  exchange-rate: 100.0
+
+# 经验升级设置
+level:
+  base-multiplier: 3
+
+# 暴击系统设置
+crit-system:
+  default-crit-rate: 0.005
+  default-crit-magnification: 0.5
+  bonus-crit-mag-duration: 1800
+  overflow-exp-multiplier: 500.0
+
+# 商店设置
+shop:
+  enabled: true
+
+# 菜单设置
+menu:
+  return-spawn:
+    enabled: true
+    command: "warp"
+    item: COMPASS
+    name: "&a返回主城"
+    slot: 0
+  create-team:
+    enabled: true
+    item: EMERALD
+    name: "&b创建小队"
+    slot: 1
+  join-team:
+    enabled: true
+    item: BOOK
+    name: "&e申请加入小队"
+    slot: 2
+  leaderboard:
+    enabled: true
+    item: NETHER_STAR
+    name: "&6排行榜"
+    slot: 3
+  currency-exchange:
+    enabled: true
+    item: GOLD_INGOT
+    name: "&e货币兑换"
+    slot: 4
+  leave-team:
+    enabled: true
+    item: BARRIER
+    name: "&c退出小队"
+    slot: 5
+  suit-toggle:
+    enabled: true
+    item: DIAMOND_CHESTPLATE
+    name: "&d装备切换"
+    slot: 6
+
+# 镐子附魔上限
+pickaxe-enchant-limits:
+  default:
+    efficiency: 5
+    fortune: 3
+    unbreaking: 3
+  iron:
+    efficiency: 10
+    fortune: 3
+    unbreaking: 3
+  diamond:
+    efficiency: 30
+    fortune: 10
+    unbreaking: 5
+  netherite:
+    efficiency: 255
+    fortune: 15
+    unbreaking: 10
+
+# 镐子升级所需等级
+pickaxe-upgrade:
+  enchant-interval: 5
+  next-tier-levels: 20
+  next-tier-levels-advanced: 30
+
+# 药水效果设置 (在矿场中持续生效)
+potion-effects:
+  regeneration:
+    enabled: true
+    amplifier: 4
+  saturation:
+    enabled: true
+    amplifier: 4
+  resistance:
+    enabled: true
+    amplifier: 4
+
+# 锻造纹饰设置
+armor-trim:
+  # 各等级对应的纹饰图案和材质
+  wood:
+    pattern: SENTRY
+    material: IRON
+  stone:
+    pattern: DUNE
+    material: IRON
+  copper:
+    pattern: COAST
+    material: COPPER
+  gold:
+    pattern: WILD
+    material: GOLD
+  iron:
+    pattern: TIDE
+    material: IRON
+  diamond:
+    pattern: EYE
+    material: DIAMOND
+  netherite:
+    pattern: SILENCE
+    material: NETHERITE
+
+# 连锁挖矿设置
+chain-mining:
+  gold:
+    max-per-direction: 3
+    max-distance: 5
+  iron:
+    max-corner: 3
+    max-distance: 5
+  diamond:
+    max-radius: 15
+
+# 垫脚玻璃配置
+glass-block:
+  material: GLASS
+  name: "&f垫脚玻璃 &7(无限使用)"
+  lore: "&7可无限放置的玻璃方块"
