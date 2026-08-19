@@ -19,19 +19,18 @@ mine:
   world-name: "goldminer_mine"
   # 矿场边界大小 (长宽)
   border-size: 2000
-  # 矿场中心区域大小 (初始石头立方体边长)
+  # 矿场中心区域大小 (初始立方体边长，长宽)
+  # 矿场高度由 layers.yml 中各层级高度决定（默认总计 100）
   center-size: 100
-  # 矿场刷新间隔 (秒)
-  refresh-interval: 30
-  # 每 tick 刷新的方块数（分批刷新，避免卡顿；越低越流畅但刷新越慢）
+  # 空气占比检测间隔（秒）- 不再定时刷新，挖完后自动刷新
+  check-interval: 10
+  # 空气方块占整体区域达到该百分比（%）时自动完整刷新矿场
+  air-threshold: 95.0
+  # 矿场生成代际版本：修改矿场生成机制（层级/矿洞/宝箱）后递增此值，
+  # 玩家下次进入矿场时检测到旧版本矿场会自动重建
+  generation-version: 3
+  # 每 tick 处理的方块数（分批刷新/扫描，避免卡顿；越低越流畅但刷新越慢）
   refresh-batch-size: 20000
-
-# 矿物品质生成概率 (总和必须为100%)
-mineral-rarity-probability:
-  common: 85.0
-  rare: 8.0
-  epic: 6.0
-  legendary: 1.0
 
 # 货币转换
 currency:

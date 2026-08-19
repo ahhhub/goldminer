@@ -2,15 +2,13 @@ package com.godminer.listener;
 
 import com.godminer.GoldMiner;
 import com.godminer.model.Mineral;
-import com.godminer.model.MineralRarity;
-import com.godminer.model.PickaxeTier;
 import com.godminer.model.PlayerData;
+import com.godminer.util.LevelUpUtil;
 import com.godminer.util.MessageUtil;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -263,17 +261,10 @@ public class BlockListener implements Listener {
     }
 
     /**
-     * 根据Material查找矿物定义
+     * 根据Material查找矿物定义（挖掘奖励）
      */
     private Mineral findMineral(Material material) {
-        for (MineralRarity rarity : MineralRarity.values()) {
-            for (Mineral mineral : plugin.getMineralManager().getMineralsByRarity(rarity)) {
-                if (mineral.getMaterial() == material) {
-                    return mineral;
-                }
-            }
-        }
-        return null;
+        return plugin.getMineralManager().findMineral(material);
     }
 
     /**
@@ -282,90 +273,16 @@ public class BlockListener implements Listener {
     private boolean isInMineArea(Location loc) {
         int centerSize = plugin.getConfig().getInt("mine.center-size", 100);
         int halfSize = centerSize / 2;
+        int totalHeight = plugin.getLayerManager().getTotalHeight();
         return Math.abs(loc.getBlockX()) <= halfSize
-                && loc.getBlockY() >= 0 && loc.getBlockY() < centerSize
+                && loc.getBlockY() >= 0 && loc.getBlockY() < totalHeight
                 && Math.abs(loc.getBlockZ()) <= halfSize;
     }
 
     /**
-     * 检查并处理升级
+     * 检查并处理升级（委托给公共升级工具）
      */
     private void checkLevelUp(Player player, PlayerData data) {
-        boolean leveled = false;
-        int maxIterations = 100; // 防止无限循环
-        int iteration = 0;
-
-        while (data.canLevelUp() && iteration < maxIterations) {
-            data.levelUp();
-            leveled = true;
-            iteration++;
-        }
-
-        if (leveled) {
-            // 发送升级消息
-            String msg = plugin.getLangConfig().getString("mining.level-up",
-                    "&a恭喜！你的矿工等级提升到了 &e{level} &a级！");
-            msg = MessageUtil.replacePlaceholders(msg, "{level}", String.valueOf(data.getLevel()));
-            MessageUtil.sendMessage(player, msg);
-
-            // 播放升级音效
-            player.playSound(player.getLocation(),
-                    org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-
-            // 检查镐子升级
-            String upgradeResult = plugin.getPickaxeManager().checkAndUpgradePickaxe(data);
-            if (upgradeResult != null) {
-                String upgradeMsg = plugin.getLangConfig().getString("mining." + upgradeResult, "&a你的镐子已升级！");
-                upgradeMsg = MessageUtil.replacePlaceholders(upgradeMsg, "{pickaxe}",
-                        plugin.getLangConfig().getString("pickaxe." + data.getPickaxeTier().getConfigKey(), "镐"));
-                MessageUtil.sendMessage(player, upgradeMsg);
-
-                // 更新镐子
-                updatePlayerPickaxe(player, data);
-
-                // 同步升级装备
-                if (data.isSuitVisible()) {
-                    plugin.getPickaxeManager().equipArmor(player, data);
-                }
-            }
-
-            // 更新BossBar
-            updateBossBar(player);
-        }
-    }
-
-    /**
-     * 更新玩家快捷栏中的镐子
-     */
-    private void updatePlayerPickaxe(Player player, PlayerData data) {
-        // 移除旧的镐子
-        var inv = player.getInventory();
-        for (int i = 0; i < inv.getSize(); i++) {
-            var item = inv.getItem(i);
-            if (item != null && isGoldMinerPickaxe(item)) {
-                inv.setItem(i, null);
-                break;
-            }
-        }
-
-        // 给予新镐子
-        inv.setItem(0, plugin.getPickaxeManager().createPickaxe(data));
-    }
-
-    /**
-     * 判断是否是矿场镐子
-     */
-    private boolean isGoldMinerPickaxe(org.bukkit.inventory.ItemStack item) {
-        if (item == null || !item.hasItemMeta()) return false;
-        return item.getItemMeta().isUnbreakable() &&
-                (item.getType().toString().endsWith("_PICKAXE"));
-    }
-
-    /**
-     * 更新BossBar
-     */
-    private void updateBossBar(Player player) {
-        // BossBar 处理在主类中
-        plugin.getBossBarManager().updateBossBar(player);
+        LevelUpUtil.handleLevelUp(plugin, player, data);
     }
 }

@@ -1,0 +1,79 @@
+# ==================== GoldMiner 宝箱战利品配置 ====================
+# 矿洞中的宝箱会随机刷新经验瓶与等级升级球。
+# 两种物品都带有特殊 NBT（PersistentDataContainer），
+# 同类型的物品 NBT 一致，可正常堆叠；可放入背包/箱子中长期保存，右键使用。
+
+# ---------- 经验瓶（材质: EXPERIENCE_BOTTLE） ----------
+exp-bottles:
+  # 使用后经验的去向:
+  #   mine    = 矿工经验（插件经验体系，参与升级）
+  #   vanilla = 原版经验条
+  exp-target: mine
+  # 宝箱中单格堆叠数量范围
+  stack-min: 1
+  stack-max: 16
+  types:
+    small:
+      name: "&a经验瓶"
+      weight: 60.0
+      exp: 500
+      lore:
+        - "&7右键使用"
+        - "&7立即获得 &e500 &7点矿工经验"
+    medium:
+      name: "&b经验瓶"
+      weight: 30.0
+      exp: 2500
+      lore:
+        - "&7右键使用"
+        - "&7立即获得 &e2500 &7点矿工经验"
+    large:
+      name: "&d经验瓶"
+      weight: 10.0
+      exp: 10000
+      lore:
+        - "&7右键使用"
+        - "&7立即获得 &e10000 &7点矿工经验"
+
+# ---------- 等级升级球（材质: SNOWBALL） ----------
+level-balls:
+  # 使用后等级的去向:
+  #   mine    = 矿工等级（插件等级体系）
+  #   vanilla = 原版等级
+  level-target: mine
+  # 宝箱中单格堆叠数量范围
+  stack-min: 1
+  stack-max: 3
+  types:
+    small:
+      name: "&e等级升级球"
+      weight: 60.0
+      levels: 1
+      lore:
+        - "&7右键使用"
+        - "&7立即提升 &e1 &7个矿工等级"
+    medium:
+      name: "&e等级升级球"
+      weight: 30.0
+      levels: 3
+      lore:
+        - "&7右键使用"
+        - "&7立即提升 &e3 &7个矿工等级"
+    large:
+      name: "&6等级升级球"
+      weight: 10.0
+      levels: 5
+      lore:
+        - "&7右键使用"
+        - "&7立即提升 &e5 &7个矿工等级"
+
+# ---------- 宝箱整体设置 ----------
+chest-loot:
+  # 每个宝箱刷新的物品格数量范围
+  min-items: 2
+  max-items: 10
+  # 每个物品格判定概率（其余概率为空）
+  # 经验瓶概率（大概率）
+  exp-bottle-chance: 0.85
+  # 等级升级球概率（极小概率）
+  level-ball-chance: 0.10

@@ -4,6 +4,7 @@ import com.godminer.command.GoldMinerCommand;
 import com.godminer.data.DatabaseManager;
 import com.godminer.listener.BlockListener;
 import com.godminer.listener.PlayerListener;
+import com.godminer.listener.SpecialItemListener;
 import com.godminer.manager.*;
 import com.godminer.placeholder.GoldMinerExpansion;
 import org.bukkit.Bukkit;
@@ -36,12 +37,15 @@ public class GoldMiner extends JavaPlugin {
     private ChatInputManager chatInputManager;
     private BossBarManager bossBarManager;
     private ShopManager shopManager;
+    private LayerManager layerManager;
+    private SpecialItemManager specialItemManager;
     private GoldMinerExpansion papiExpansion;
     private PlayerListener playerListener;
 
     // 配置文件
     private FileConfiguration langConfig;
-    private FileConfiguration blockConfig;
+    private FileConfiguration layersConfig;
+    private FileConfiguration lootConfig;
 
     @Override
     public void onEnable() {
@@ -99,8 +103,10 @@ public class GoldMiner extends JavaPlugin {
         saveResourceIfNotExists("config.yml");
         // 保存 lang.yml
         saveResourceIfNotExists("lang.yml");
-        // 保存 block.yml
-        saveResourceIfNotExists("block.yml");
+        // 保存 layers.yml (分层矿场配置)
+        saveResourceIfNotExists("layers.yml");
+        // 保存 loot.yml (经验瓶/等级升级球/宝箱配置)
+        saveResourceIfNotExists("loot.yml");
         // 保存 shop.yml
         saveResourceIfNotExists("shop.yml");
 
@@ -118,14 +124,24 @@ public class GoldMiner extends JavaPlugin {
             langConfig.setDefaults(defaultLang);
         }
 
-        // 加载 block.yml
-        File blockFile = new File(getDataFolder(), "block.yml");
-        blockConfig = YamlConfiguration.loadConfiguration(blockFile);
-        InputStream blockDefault = getResource("block.yml");
-        if (blockDefault != null) {
-            YamlConfiguration defaultBlock = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(blockDefault, StandardCharsets.UTF_8));
-            blockConfig.setDefaults(defaultBlock);
+        // 加载 layers.yml
+        File layersFile = new File(getDataFolder(), "layers.yml");
+        layersConfig = YamlConfiguration.loadConfiguration(layersFile);
+        InputStream layersDefault = getResource("layers.yml");
+        if (layersDefault != null) {
+            YamlConfiguration defaultLayers = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(layersDefault, StandardCharsets.UTF_8));
+            layersConfig.setDefaults(defaultLayers);
+        }
+
+        // 加载 loot.yml
+        File lootFile = new File(getDataFolder(), "loot.yml");
+        lootConfig = YamlConfiguration.loadConfiguration(lootFile);
+        InputStream lootDefault = getResource("loot.yml");
+        if (lootDefault != null) {
+            YamlConfiguration defaultLoot = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(lootDefault, StandardCharsets.UTF_8));
+            lootConfig.setDefaults(defaultLoot);
         }
     }
 
@@ -143,9 +159,17 @@ public class GoldMiner extends JavaPlugin {
             getLogger().severe("数据库初始化失败，插件将无法正常工作！");
         }
 
-        // 矿物管理器
+        // 分层管理器（加载 layers.yml）
+        layerManager = new LayerManager(this);
+        layerManager.loadLayers();
+
+        // 矿物管理器（根据层级定义收集奖励）
         mineralManager = new MineralManager(this);
         mineralManager.loadMinerals();
+
+        // 特殊物品管理器（经验瓶/等级升级球/宝箱）
+        specialItemManager = new SpecialItemManager(this);
+        specialItemManager.loadConfig();
 
         // 玩家数据管理器
         playerDataManager = new PlayerDataManager(this);
@@ -200,6 +224,7 @@ public class GoldMiner extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
         playerListener = new PlayerListener(this);
         Bukkit.getPluginManager().registerEvents(playerListener, this);
+        Bukkit.getPluginManager().registerEvents(new SpecialItemListener(this), this);
         // GUIManager 和 ChatInputManager 在构造函数中已注册
     }
 
@@ -229,22 +254,30 @@ public class GoldMiner extends JavaPlugin {
         File langFile = new File(getDataFolder(), "lang.yml");
         langConfig = YamlConfiguration.loadConfiguration(langFile);
 
-        // 重新加载 block.yml
-        File blockFile = new File(getDataFolder(), "block.yml");
-        blockConfig = YamlConfiguration.loadConfiguration(blockFile);
+        // 重新加载 layers.yml
+        File layersFile = new File(getDataFolder(), "layers.yml");
+        layersConfig = YamlConfiguration.loadConfiguration(layersFile);
+
+        // 重新加载 loot.yml
+        File lootFile = new File(getDataFolder(), "loot.yml");
+        lootConfig = YamlConfiguration.loadConfiguration(lootFile);
 
         // 重新加载 shop.yml
         shopManager.reloadShopConfig();
 
-        // 重新加载矿物数据
+        // 重新加载层级与矿物奖励
+        layerManager.loadLayers();
         mineralManager.loadMinerals();
 
-        // 重启矿场刷新任务以应用新间隔
+        // 重新加载特殊物品配置
+        specialItemManager.loadConfig();
+
+        // 重启矿场监控任务以应用新参数
         String worldName = getConfig().getString("mine.world-name", "goldminer_mine");
         var world = org.bukkit.Bukkit.getWorld(worldName);
         if (world != null) {
             mineManager.startRefreshTask(world);
-            getLogger().info("矿场刷新任务已重启，新间隔已生效。");
+            getLogger().info("矿场监控任务已重启，新参数已生效。");
         }
     }
 
@@ -302,6 +335,14 @@ public class GoldMiner extends JavaPlugin {
         return shopManager;
     }
 
+    public LayerManager getLayerManager() {
+        return layerManager;
+    }
+
+    public SpecialItemManager getSpecialItemManager() {
+        return specialItemManager;
+    }
+
     public PlayerListener getPlayerListener() {
         return playerListener;
     }
@@ -310,7 +351,11 @@ public class GoldMiner extends JavaPlugin {
         return langConfig;
     }
 
-    public FileConfiguration getBlockConfig() {
-        return blockConfig;
+    public FileConfiguration getLayersConfig() {
+        return layersConfig;
+    }
+
+    public FileConfiguration getLootConfig() {
+        return lootConfig;
     }
 }

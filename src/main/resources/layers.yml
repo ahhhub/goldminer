@@ -1,0 +1,412 @@
+# ==================== GoldMiner 分层矿场配置 ====================
+# 矿场从上到下由若干"层级"组成，最底部自动生成基岩层（默认 1 格）。
+# 本文件中 layers 的书写顺序 = 矿场中从上到下的顺序。
+#
+# 每个层级由"基石"与"矿石"两部分组成：
+#   - base-blocks（基石）：构成该层级大部分质量的方块
+#   - ores（矿石）：该层级的矿物与特殊方块
+#   两者在整体生成中的占比由 global.base-weight-percent / ore-weight-percent 控制
+#   （默认 95% / 5%，可在 global 中修改）。
+#
+# 继承机制：上层矿石会自动"继承"到下层（每深一层权重乘以 global.inherit-decay），
+# 即上一层矿物在下一层仍然出现，但概率显著减少；如此逐层累积。
+# 单个矿石可设置 inherit: false，表示只在本层级刷新、不下沉。
+#
+# 每个方块可配置:
+#   weight: 在所属池中的相对权重（越大越常见）
+#   coin:   挖掉时给予的金币
+#   exp:    挖掉时给予的经验
+
+global:
+  # 基石方块占整体生成概率的百分比
+  base-weight-percent: 95.0
+  # 矿石/特殊方块占整体生成概率的百分比
+  ore-weight-percent: 5.0
+  # 上层矿石继承到下一层的衰减系数（0.05 = 每深一层保留 5% 权重）
+  inherit-decay: 0.05
+
+# 基岩层（最底部，默认只占 1 格深度）
+bedrock:
+  height: 1
+  block: BEDROCK
+
+# 矿洞生成设置
+caves:
+  enabled: true
+  # 每 10000 方块体积生成的矿洞数量（约数，自动按矿场体积缩放）
+  count-per-10000: 0.5
+  # 矿洞随机游走长度范围（步数）
+  min-length: 25
+  max-length: 55
+  # 矿洞截面半径范围
+  min-radius: 1
+  max-radius: 2
+  # 每个矿洞放置宝箱的概率
+  chest-chance: 0.4
+
+layers:
+  # ---------- 石头区（最上层） ----------
+  stone:
+    display: "&7石头区"
+    height: 16
+    base-blocks:
+      STONE:
+        weight: 80.0
+        coin: 1
+        exp: 1
+      ANDESITE:
+        weight: 10.0
+        coin: 1
+        exp: 1
+      DIORITE:
+        weight: 10.0
+        coin: 1
+        exp: 1
+    ores:
+      COAL_ORE:
+        weight: 24.0
+        coin: 10
+        exp: 5
+      IRON_ORE:
+        weight: 15.0
+        coin: 15
+        exp: 8
+      COPPER_ORE:
+        weight: 12.0
+        coin: 12
+        exp: 6
+      EMERALD_ORE:
+        weight: 1.0
+        coin: 600
+        exp: 120
+
+  # ---------- 方解石区 ----------
+  calcite:
+    display: "&f方解石区"
+    height: 14
+    base-blocks:
+      CALCITE:
+        weight: 100.0
+        coin: 2
+        exp: 1
+    ores:
+      AMETHYST_BLOCK:
+        weight: 18.0
+        coin: 20
+        exp: 10
+        inherit: false
+      GOLD_ORE:
+        weight: 12.0
+        coin: 80
+        exp: 40
+      LAPIS_ORE:
+        weight: 12.0
+        coin: 50
+        exp: 25
+      STONE:
+        weight: 12.0
+        coin: 1
+        exp: 1
+      IRON_ORE:
+        weight: 10.0
+        coin: 15
+        exp: 8
+      DIAMOND_ORE:
+        weight: 4.0
+        coin: 500
+        exp: 100
+
+  # ---------- 花岗岩区 ----------
+  granite:
+    display: "&6花岗岩区"
+    height: 14
+    base-blocks:
+      GRANITE:
+        weight: 70.0
+        coin: 1
+        exp: 1
+      DIORITE:
+        weight: 15.0
+        coin: 1
+        exp: 1
+      ANDESITE:
+        weight: 15.0
+        coin: 1
+        exp: 1
+    ores:
+      COAL_ORE:
+        weight: 15.0
+        coin: 10
+        exp: 5
+      IRON_ORE:
+        weight: 13.0
+        coin: 15
+        exp: 8
+      COPPER_ORE:
+        weight: 12.0
+        coin: 12
+        exp: 6
+      GOLD_ORE:
+        weight: 10.0
+        coin: 80
+        exp: 40
+      REDSTONE_ORE:
+        weight: 8.0
+        coin: 55
+        exp: 27
+      LAPIS_ORE:
+        weight: 8.0
+        coin: 50
+        exp: 25
+      DIAMOND_ORE:
+        weight: 2.0
+        coin: 500
+        exp: 100
+
+  # ---------- 深板岩区 ----------
+  deepslate:
+    display: "&8深板岩区"
+    height: 14
+    base-blocks:
+      DEEPSLATE:
+        weight: 85.0
+        coin: 2
+        exp: 1
+      TUFF:
+        weight: 15.0
+        coin: 1
+        exp: 1
+    ores:
+      DEEPSLATE_COAL_ORE:
+        weight: 12.0
+        coin: 12
+        exp: 6
+      DEEPSLATE_IRON_ORE:
+        weight: 10.0
+        coin: 18
+        exp: 9
+      DEEPSLATE_REDSTONE_ORE:
+        weight: 10.0
+        coin: 60
+        exp: 30
+      DEEPSLATE_DIAMOND_ORE:
+        weight: 8.0
+        coin: 550
+        exp: 110
+      DEEPSLATE_LAPIS_ORE:
+        weight: 8.0
+        coin: 55
+        exp: 27
+      DEEPSLATE_GOLD_ORE:
+        weight: 8.0
+        coin: 85
+        exp: 42
+      DEEPSLATE_COPPER_ORE:
+        weight: 8.0
+        coin: 14
+        exp: 7
+      DEEPSLATE_EMERALD_ORE:
+        weight: 1.5
+        coin: 650
+        exp: 130
+      RAW_IRON_BLOCK:
+        weight: 6.0
+        coin: 50
+        exp: 25
+        inherit: false
+      RAW_GOLD_BLOCK:
+        weight: 4.0
+        coin: 80
+        exp: 40
+        inherit: false
+      RAW_COPPER_BLOCK:
+        weight: 6.0
+        coin: 50
+        exp: 25
+        inherit: false
+
+  # ---------- 下界岩区 ----------
+  netherrack:
+    display: "&c下界岩区"
+    height: 12
+    base-blocks:
+      NETHERRACK:
+        weight: 90.0
+        coin: 1
+        exp: 1
+      MAGMA_BLOCK:
+        weight: 10.0
+        coin: 2
+        exp: 2
+    ores:
+      NETHER_QUARTZ_ORE:
+        weight: 18.0
+        coin: 60
+        exp: 30
+      NETHER_GOLD_ORE:
+        weight: 15.0
+        coin: 70
+        exp: 35
+      GLOWSTONE:
+        weight: 12.0
+        coin: 30
+        exp: 15
+      SOUL_SAND:
+        weight: 5.0
+        coin: 3
+        exp: 2
+      ANCIENT_DEBRIS:
+        weight: 0.4
+        coin: 2000
+        exp: 300
+
+  # ---------- 玄武岩区 ----------
+  basalt:
+    display: "&7玄武岩区"
+    height: 10
+    base-blocks:
+      BASALT:
+        weight: 80.0
+        coin: 2
+        exp: 1
+      SMOOTH_BASALT:
+        weight: 20.0
+        coin: 2
+        exp: 1
+    ores:
+      NETHER_QUARTZ_ORE:
+        weight: 15.0
+        coin: 60
+        exp: 30
+      NETHER_GOLD_ORE:
+        weight: 12.0
+        coin: 70
+        exp: 35
+      GLOWSTONE:
+        weight: 11.0
+        coin: 30
+        exp: 15
+      BONE_BLOCK:
+        weight: 6.0
+        coin: 40
+        exp: 20
+        inherit: false
+      MAGMA_BLOCK:
+        weight: 5.0
+        coin: 2
+        exp: 2
+      ANCIENT_DEBRIS:
+        weight: 0.4
+        coin: 2000
+        exp: 300
+
+  # ---------- 黑石区 ----------
+  blackstone:
+    display: "&8黑石区"
+    height: 10
+    base-blocks:
+      BLACKSTONE:
+        weight: 80.0
+        coin: 2
+        exp: 1
+      POLISHED_BLACKSTONE:
+        weight: 20.0
+        coin: 3
+        exp: 2
+    ores:
+      NETHER_QUARTZ_ORE:
+        weight: 12.0
+        coin: 60
+        exp: 30
+      NETHER_GOLD_ORE:
+        weight: 11.0
+        coin: 70
+        exp: 35
+      GLOWSTONE:
+        weight: 9.0
+        coin: 30
+        exp: 15
+      GILDED_BLACKSTONE:
+        weight: 5.0
+        coin: 65
+        exp: 32
+        inherit: false
+      BONE_BLOCK:
+        weight: 5.0
+        coin: 40
+        exp: 20
+        inherit: false
+      GOLD_ORE:
+        weight: 2.5
+        coin: 80
+        exp: 40
+        inherit: false
+      ANCIENT_DEBRIS:
+        weight: 0.4
+        coin: 2000
+        exp: 300
+
+  # ---------- 末地石区 ----------
+  endstone:
+    display: "&d末地石区"
+    height: 9
+    base-blocks:
+      END_STONE:
+        weight: 85.0
+        coin: 3
+        exp: 2
+      END_STONE_BRICKS:
+        weight: 15.0
+        coin: 4
+        exp: 2
+    ores:
+      COAL_BLOCK:
+        weight: 10.0
+        coin: 40
+        exp: 20
+        inherit: false
+      IRON_BLOCK:
+        weight: 9.0
+        coin: 450
+        exp: 90
+        inherit: false
+      COPPER_BLOCK:
+        weight: 8.0
+        coin: 350
+        exp: 70
+        inherit: false
+      GOLD_BLOCK:
+        weight: 6.0
+        coin: 4500
+        exp: 900
+        inherit: false
+      LAPIS_BLOCK:
+        weight: 5.0
+        coin: 450
+        exp: 90
+        inherit: false
+      REDSTONE_BLOCK:
+        weight: 5.0
+        coin: 450
+        exp: 90
+        inherit: false
+      EMERALD_BLOCK:
+        weight: 2.0
+        coin: 5400
+        exp: 1080
+        inherit: false
+      DIAMOND_BLOCK:
+        weight: 1.5
+        coin: 4500
+        exp: 900
+        inherit: false
+      NETHERITE_BLOCK:
+        weight: 0.25
+        coin: 66666
+        exp: 99999
+        inherit: false
+      OBSIDIAN:
+        weight: 4.0
+        coin: 10
+        exp: 5
+        inherit: false

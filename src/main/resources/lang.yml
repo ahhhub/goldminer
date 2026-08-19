@@ -20,6 +20,14 @@ join:
 # 矿场消息
 mine:
   unsafe-teleport: "&c检测到你在危险区域，已将你传送到安全区域！"
+  # 自动刷新（矿场被挖空）时提示
+  auto-refresh-start: "&e检测到矿场已被挖空（空气占比 {percent}%），正在重新生成矿场..."
+  # 手动完整刷新时提示
+  refresh-start: "&a矿场开始刷新！请前往安全区域。"
+  # 单层级刷新时提示
+  layer-refresh-start: "&a层级 &e{layer} &a开始刷新！"
+  # 刷新完成提示
+  refresh-complete: "&a矿场刷新完成！新的矿场已经生成，快去挖矿吧！"
 
 # 小队消息
 team:
@@ -88,6 +96,11 @@ suit:
 glass:
   name: "&f垫脚玻璃 &7(无限使用)"
   lore: "&7可无限放置的玻璃方块"
+
+# 特殊物品（经验瓶 / 等级升级球）
+special-items:
+  exp-bottle-used: "&a你使用了 &e经验瓶&a，获得 &e{amount} &a点矿工经验！"
+  level-ball-used: "&a你使用了 &e等级升级球&a，矿工等级提升了 &e{levels} &a级！"
 
 # Boss血条
 bossbar:

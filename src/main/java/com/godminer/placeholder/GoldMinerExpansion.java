@@ -50,7 +50,7 @@ public class GoldMinerExpansion extends PlaceholderExpansion {
         // 不需要玩家参数的占位符
         switch (identifier.toLowerCase()) {
             case "reload_time":
-                int interval = plugin.getConfig().getInt("mine.refresh-interval", 30);
+                int interval = plugin.getConfig().getInt("mine.check-interval", 10);
                 return String.valueOf(interval);
         }
 

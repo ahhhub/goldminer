@@ -85,9 +85,10 @@ public class WorldManager {
      * 获取玩家在矿场的安全生产点（矿场上方的平台）
      */
     public Location getSafeSpawnLocation(World world) {
-        int centerSize = plugin.getConfig().getInt("mine.center-size", 100);
+        // 矿场总高度（分层配置总和 + 基岩层）
+        int totalHeight = plugin.getLayerManager().getTotalHeight();
         // 矿场顶部 + 2格安全空间
-        int safeY = centerSize + 2;
+        int safeY = totalHeight + 2;
         
         Location spawnLoc = new Location(world, 0.5, safeY, 0.5);
         // 确保脚下有安全平台

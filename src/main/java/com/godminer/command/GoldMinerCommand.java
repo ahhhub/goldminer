@@ -83,8 +83,9 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
         MessageUtil.sendMessage(sender, "&e/goldminer exchange <数量> &7- 兑换货币");
         MessageUtil.sendMessage(sender, "&e/goldminer buy lv <数量> &7- 精确购买等级");
         if (sender.hasPermission("goldminer.admin")) {
-            MessageUtil.sendMessage(sender, "&c/goldminer reload &7- 重载所有配置文件");
-            MessageUtil.sendMessage(sender, "&c/goldminer reload pool &7- 强制刷新矿池");
+            MessageUtil.sendMessage(sender, "&c/goldminer reload &7- 重载配置并刷新所有层级");
+            MessageUtil.sendMessage(sender, "&c/goldminer reload <层级> &7- 只刷新指定层级");
+            MessageUtil.sendMessage(sender, "&c/goldminer reload pool &7- 强制完整刷新矿场");
             MessageUtil.sendMessage(sender, "&c/goldminer reload info &7- 刷新玩家与矿场信息");
             MessageUtil.sendMessage(sender, "&c/goldminer shop set <商品key> <价格> &7- 修改商店价格");
             MessageUtil.sendMessage(sender, "&c/goldminer set exp|lv <玩家> <数量> &7- 设置经验/等级");
@@ -537,7 +538,7 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    // ===== reload 命令（配置重载 / 矿池刷新 / 信息刷新） =====
+    // ===== reload 命令（配置重载 / 层级刷新 / 完整刷新 / 信息刷新） =====
 
     private boolean handleReload(CommandSender sender, String[] args) {
         if (!sender.hasPermission("goldminer.admin")) {
@@ -545,26 +546,46 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // /goldminer reload → 重载配置
+        // /goldminer reload → 重载全部配置并刷新所有层级
         if (args.length < 2) {
             plugin.reloadConfigs();
             MessageUtil.sendMessage(sender, plugin.getLangConfig().getString("messages.reload", "&a配置已重新加载！"));
+            World mineWorld = getMineWorld();
+            if (mineWorld != null) {
+                plugin.getMineManager().refreshMine(mineWorld);
+                MessageUtil.sendMessage(sender, "&a矿场所有层级已开始刷新！");
+            } else {
+                MessageUtil.sendMessage(sender, "&e矿场世界未加载，跳过矿场刷新。");
+            }
             return true;
         }
 
         String action = args[1].toLowerCase();
 
-        // /goldminer reload pool → 强制刷新矿池
-        if (action.equals("pool")) {
-            String worldName = plugin.getConfig().getString("mine.world-name", "goldminer_mine");
-            World mineWorld = Bukkit.getWorld(worldName);
+        // /goldminer reload <层级> → 只刷新指定层级
+        if (plugin.getLayerManager().getLayer(action) != null || action.equalsIgnoreCase("bedrock")) {
+            World mineWorld = getMineWorld();
             if (mineWorld == null) {
-                MessageUtil.sendMessage(sender, "&c矿场世界 " + worldName + " 未加载！请先让玩家执行 /goldminer join。");
+                MessageUtil.sendMessage(sender, "&c矿场世界 " + plugin.getConfig().getString("mine.world-name", "goldminer_mine")
+                        + " 未加载！请先让玩家执行 /goldminer join。");
                 return true;
             }
-            // 分批刷新（完成时自动进行玩家安全检查）
+            plugin.getMineManager().refreshLayer(mineWorld, action);
+            MessageUtil.sendMessage(sender, "&a层级 &e" + plugin.getLayerManager().getDisplayName(action) + " &a已开始刷新！");
+            return true;
+        }
+
+        // /goldminer reload pool → 强制完整刷新矿场
+        if (action.equals("pool")) {
+            World mineWorld = getMineWorld();
+            if (mineWorld == null) {
+                MessageUtil.sendMessage(sender, "&c矿场世界 " + plugin.getConfig().getString("mine.world-name", "goldminer_mine")
+                        + " 未加载！请先让玩家执行 /goldminer join。");
+                return true;
+            }
+            // 完整刷新（含矿洞与宝箱，完成时自动进行玩家安全检查）
             plugin.getMineManager().refreshMine(mineWorld);
-            MessageUtil.sendMessage(sender, "&a矿池已开始刷新！矿物将分批重新生成。");
+            MessageUtil.sendMessage(sender, "&a矿场已开始完整刷新！所有层级、矿洞与宝箱将重新生成。");
             return true;
         }
 
@@ -605,8 +626,16 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        MessageUtil.sendMessage(sender, "&e用法: &a/goldminer reload [pool|info]");
+        MessageUtil.sendMessage(sender, "&e用法: &a/goldminer reload [层级|pool|info]");
         return true;
+    }
+
+    /**
+     * 获取矿场世界（可能未加载）
+     */
+    private World getMineWorld() {
+        String worldName = plugin.getConfig().getString("mine.world-name", "goldminer_mine");
+        return Bukkit.getWorld(worldName);
     }
 
     private boolean handleSuit(CommandSender sender) {
@@ -830,8 +859,12 @@ public class GoldMinerCommand implements CommandExecutor, TabCompleter {
                     yield Collections.emptyList();
                 }
                 case "reload" -> {
-                    if (sender.hasPermission("goldminer.admin"))
-                        yield filterPrefix(List.of("pool", "info"), args[1]);
+                    if (sender.hasPermission("goldminer.admin")) {
+                        List<String> options = new ArrayList<>(plugin.getLayerManager().getLayerNames());
+                        options.add("pool");
+                        options.add("info");
+                        yield filterPrefix(options, args[1]);
+                    }
                     yield Collections.emptyList();
                 }
                 case "set", "add", "remove" -> {

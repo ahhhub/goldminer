@@ -15,7 +15,8 @@
 - [配置文件](#配置文件)
   - [config.yml](#configyml)
   - [lang.yml](#langyml)
-  - [block.yml](#blockyml)
+  - [layers.yml](#layersyml)
+  - [loot.yml](#lootyml)
   - [shop.yml](#shopyml)
 - [功能详解](#功能详解)
   - [矿场系统](#矿场系统)
@@ -51,7 +52,8 @@
 4. 插件会在 `plugins/GoldMiner/` 生成配置文件：
    - `config.yml` - 主配置
    - `lang.yml` - 语言/消息
-   - `block.yml` - 矿物定义
+   - `layers.yml` - 分层矿场定义（层级/矿物/矿洞）
+   - `loot.yml` - 宝箱战利品（经验瓶/等级升级球）
    - `shop.yml` - 商店定价
 5. 根据需要修改配置文件，执行 `/goldminer reload` 重载
 
@@ -82,8 +84,9 @@
 
 | 命令 | 说明 |
 |------|------|
-| `/goldminer reload` | 重载所有配置文件 |
-| `/goldminer reload pool` | 强制刷新矿池（矿物重新随机） |
+| `/goldminer reload` | 重载配置并刷新所有层级 |
+| `/goldminer reload <层级>` | 只刷新指定层级（stone/calcite/.../bedrock） |
+| `/goldminer reload pool` | 强制完整刷新矿场（含矿洞与宝箱） |
 | `/goldminer reload info` | 刷新玩家数据与矿场世界信息 |
 | `/goldminer shop set <key> <价格>` | 热修改商店价格（即时生效） |
 | `/goldminer set exp\|lv <玩家> <数量>` | 设置玩家经验/等级 |
@@ -96,7 +99,7 @@
 
 | 占位符 | 返回值 | 说明 |
 |--------|--------|------|
-| `%goldminer_reload_time%` | 整数 | 矿场刷新间隔（秒） |
+| `%goldminer_reload_time%` | 整数 | 矿场空气占比检测间隔（秒） |
 | `%goldminer_user_level%` | 整数 | 玩家当前等级 |
 | `%goldminer_user_money%` | 整数 | 玩家金币数 |
 | `%goldminer_crit_hit_rate%` | 百分比字符串 | 暴击率（如 "5.0"） |
@@ -129,8 +132,10 @@ storage:
 mine:
   world-name: "goldminer_mine"  # 矿场世界名称
   border-size: 2000             # 世界边界
-  center-size: 100              # 矿场核心区域边长
-  refresh-interval: 30          # 自动刷新间隔（秒）
+  center-size: 100              # 矿场核心区域边长（长宽）
+  check-interval: 10            # 空气占比检测间隔（秒）
+  air-threshold: 95.0           # 空气占比达到该百分比时自动完整刷新
+  refresh-batch-size: 20000     # 每 tick 处理方块数（分批刷新/扫描）
 
 # 暴击系统
 crit-system:
@@ -172,33 +177,70 @@ gui:
     create-team: {name: "&b创建小队", ...}
 ```
 
-### block.yml
+### layers.yml
 
-矿物定义文件，可添加/修改矿物及奖励：
+分层矿场定义文件。矿场从上到下依次为：石头区 → 方解石区 → 花岗岩区 → 深板岩区 →
+下界岩区 → 玄武岩区 → 黑石区 → 末地石区，最底部为 1 格基岩。
 
 ```yaml
-common:
-  STONE:        {probability: 15.0, coin: 1, exp: 1}
-  COBBLESTONE:  {probability: 15.0, coin: 1, exp: 1}
-  ...
+global:
+  base-weight-percent: 95.0   # 基石占整体生成概率的百分比
+  ore-weight-percent: 5.0     # 矿石/特殊方块占比
+  inherit-decay: 0.05         # 上层矿物继承到下层的衰减系数
 
-rare:
-  IRON_ORE:     {probability: 10.0, coin: 10, exp: 5}
-  COPPER_ORE:   {probability: 8.0,  coin: 8,  exp: 4}
-  ...
+bedrock:
+  height: 1                   # 基岩层深度
+  block: BEDROCK
 
-epic:
-  GOLD_ORE:     {probability: 5.0, coin: 30, exp: 15}
-  ...
+caves:
+  enabled: true
+  count-per-10000: 2          # 每 10000 方块体积的矿洞数
+  chest-chance: 0.3           # 每个矿洞出现宝箱的概率
 
-legendary:
-  DIAMOND_ORE:  {probability: 3.0, coin: 100, exp: 50}
-  ...
+layers:
+  stone:                      # 层级名（/goldminer reload 时可用）
+    display: "&7石头区"
+    height: 16
+    base-blocks:
+      STONE: {weight: 80.0, coin: 1, exp: 1}
+    ores:
+      COAL_ORE: {weight: 40.0, coin: 10, exp: 5}
+      IRON_ORE: {weight: 25.0, coin: 15, exp: 8}
 ```
 
-- `probability`：该品质内部的相对概率
-- `coin`：挖掘奖励金币
-- `exp`：挖掘奖励经验
+- `weight`：在所属池中的相对权重（越大越常见）
+- `coin` / `exp`：挖掘奖励
+- `inherit: false`：该矿物只在本层刷新、不继承到下层
+- 上层矿石自动继承到下层（每深一层权重 × inherit-decay）
+
+### loot.yml
+
+宝箱战利品定义（经验瓶与等级升级球）：
+
+```yaml
+exp-bottles:
+  exp-target: mine            # mine = 矿工经验 / vanilla = 原版经验条
+  stack-min: 1                # 单格堆叠数量范围
+  stack-max: 16
+  types:
+    small: {name: "&a经验瓶", weight: 60.0, exp: 500, lore: [...]}
+    medium: {name: "&b经验瓶", weight: 30.0, exp: 2500, lore: [...]}
+    large: {name: "&d经验瓶", weight: 10.0, exp: 10000, lore: [...]}
+
+level-balls:
+  level-target: mine          # mine = 矿工等级 / vanilla = 原版等级
+  types:
+    small: {name: "&e等级升级球", weight: 60.0, levels: 1, lore: [...]}
+
+chest-loot:
+  min-items: 2
+  max-items: 10
+  exp-bottle-chance: 0.85     # 经验瓶概率（大概率）
+  level-ball-chance: 0.10     # 等级升级球概率（极小概率）
+```
+
+- 物品通过特殊 NBT 区分类型，同类型可堆叠、可放入箱子长期保存，右键使用
+- `weight`：宝箱中抽到该类型的相对概率
 
 ### shop.yml
 
@@ -251,14 +293,20 @@ shop-icons:
 ### 矿场系统
 
 - 独立的共享矿场世界（`goldminer_mine`）
-- 矿场为 100×100×100 立方体，矿物按品质概率随机生成
-- 品质分布（config.yml 可调）：普通 85%、稀有 8%、史诗 6%、传奇 1%
-- 自动定时刷新（默认 30 秒），刷新时所有方块重新随机
+- 矿场为分层立方体，从上到下：石头区 → 方解石区 → 花岗岩区 → 深板岩区 → 下界岩区 → 玄武岩区 → 黑石区 → 末地石区，最底部 1 格基岩
+- 每层由基石（默认占 90%）与矿石（默认占 10%）构成；上层矿石逐层衰减继承到下层
+- 矿场内部随机生成矿洞，部分矿洞刷新宝箱（经验瓶 / 等级升级球）
+- 不再定时刷新：空气方块占矿场总体积 95%（可调）时自动完整刷新
 - 玩家在矿场顶部安全平台出生，装备自动保护
 
 **进入与退出**：
 - 执行 `/goldminer join` → 传送到矿场 → 获得木镐 + 菜单星 + 无限垫脚玻璃
 - 退出矿场世界（传送回主世界）→ 自动清除矿场追踪 → 可重新 join
+
+**手动刷新**：
+- `/goldminer reload` → 重载配置并刷新所有层级
+- `/goldminer reload <层级>` → 只刷新指定层级（如 stone、deepslate、netherrack、bedrock）
+- `/goldminer reload pool` → 强制完整刷新（含矿洞与宝箱）
 
 ### 镐子升级
 
@@ -378,10 +426,10 @@ shop-icons:
 ## 常见问题
 
 **Q：加入矿场后看不到矿物？**
-A：矿场为 100×100×100 立方体，从 y=0 到 y=100。请确认你所处位置在矿场范围内。
+A：矿场为 101×101×100 立方体（长宽由 `mine.center-size` 决定，高度由 `layers.yml` 各层高度决定），从 y=0 到 y=100。请确认你所处位置在矿场范围内。
 
 **Q：矿场不自动刷新？**
-A：检查 `config.yml` 中 `mine.refresh-interval` 是否设置为有效值。可执行 `/goldminer reload pool` 手动刷新。
+A：矿场不再定时刷新。插件每 `mine.check-interval` 秒扫描一次空气占比，当空气方块占矿场总体积的 `mine.air-threshold`% 时自动完整刷新。也可执行 `/goldminer reload`（全部层级）或 `/goldminer reload <层级>`（单层）手动刷新。
 
 **Q：升级后镐子没有变化？**
 A：镐子在快捷栏第 1 格，升级后自动替换。如有旧镐子残留，重新 `/goldminer join` 即可。
