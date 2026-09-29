@@ -1,126 +1,124 @@
-# GoldMiner 挖矿小游戏插件
+A mining mini-game plugin for Purpur 1.21.11, where players mine in an independent mine world to earn coins and experience, upgrade pickaxes, purchase items, and form teams.
 
-适用于 Purpur 1.21.11 的挖矿小游戏插件，玩家在独立矿场世界中挖矿获取金币与经验，升级镐子、购买道具、组建小队。
+* * *
 
----
+## Table of Contents
 
-## 目录
++   [Dependencies](#dependencies)
++   [Installation & Setup](#installation--setup)
++   [Command Reference](#command-reference)
+    +   [Player Commands](#player-commands)
+    +   [Admin Commands](#admin-commands)
++   [PlaceholderAPI](#placeholderapi)
++   [Configuration Files](#configuration-files)
+    +   [config.yml](#configyml)
+    +   [lang.yml](#langyml)
+    +   [layers.yml](#layersyml)
+    +   [loot.yml](#lootyml)
+    +   [shop.yml](#shopyml)
++   [Feature Details](#feature-details)
+    +   [Mine System](#mine-system)
+    +   [Pickaxe Upgrades](#pickaxe-upgrades)
+    +   [Crit System](#crit-system)
+    +   [Potion Shop](#potion-shop)
+    +   [Crit Rate / Crit Multiplier Shop](#crit-rate--crit-multiplier-shop)
+    +   [Level Purchase](#level-purchase)
+    +   [Chain Trial Card](#chain-trial-card)
+    +   [General Chain](#general-chain)
+    +   [Team System](#team-system)
+    +   [Currency Exchange](#currency-exchange)
++   [Permission Nodes](#permission-nodes)
++   [FAQ](#faq)
 
-- [依赖插件](#依赖插件)
-- [安装与启用](#安装与启用)
-- [命令参考](#命令参考)
-  - [玩家命令](#玩家命令)
-  - [管理员命令](#管理员命令)
-- [PlaceholderAPI 占位符](#placeholderapi-占位符)
-- [配置文件](#配置文件)
-  - [config.yml](#configyml)
-  - [lang.yml](#langyml)
-  - [layers.yml](#layersyml)
-  - [loot.yml](#lootyml)
-  - [shop.yml](#shopyml)
-- [功能详解](#功能详解)
-  - [矿场系统](#矿场系统)
-  - [镐子升级](#镐子升级)
-  - [暴击系统](#暴击系统)
-  - [药水商店](#药水商店)
-  - [暴击率/暴击倍率商店](#暴击率暴击倍率商店)
-  - [等级购买](#等级购买)
-  - [连锁体验卡](#连锁体验卡)
-  - [一般连锁](#一般连锁)
-  - [小队系统](#小队系统)
-  - [货币兑换](#货币兑换)
-- [权限节点](#权限节点)
-- [常见问题](#常见问题)
+* * *
 
----
+## Dependencies
 
-## 依赖插件
+| Plugin | Required | Description |
+| --- | --- | --- |
+| **Multiverse-Core** | Yes | World management |
+| **Vault** | Yes | Economy system integration |
+| **PlaceholderAPI** | No | Placeholder support (recommended) |
 
-| 插件 | 必需 | 说明 |
-|------|------|------|
-| **Multiverse-Core** | ✅ 是 | 世界管理 |
-| **Vault** | ✅ 是 | 经济系统对接 |
-| **PlaceholderAPI** | 否 | 占位符支持（推荐安装） |
+* * *
 
----
+## Installation & Setup
 
-## 安装与启用
+1.  Ensure the required dependencies are installed
+2.  Place `GoldMiner.jar` into the server's `plugins/` directory
+3.  Restart the server or run `/plugman load GoldMiner`
+4.  The plugin will generate configuration files under `plugins/GoldMiner/`:
+    +   `config.yml` - Main configuration
+    +   `lang.yml` - Language/messages
+    +   `layers.yml` - Layered mine definitions (layers/ores/caves)
+    +   `loot.yml` - Chest loot (experience bottles / level-up balls)
+    +   `shop.yml` - Shop pricing
+5.  Modify the configuration files as needed, then run `/goldminer reload` to reload
 
-1. 确保已安装依赖插件
-2. 将 `GoldMiner.jar` 放入服务器的 `plugins/` 目录
-3. 重启服务器或执行 `/plugman load GoldMiner`
-4. 插件会在 `plugins/GoldMiner/` 生成配置文件：
-   - `config.yml` - 主配置
-   - `lang.yml` - 语言/消息
-   - `layers.yml` - 分层矿场定义（层级/矿物/矿洞）
-   - `loot.yml` - 宝箱战利品（经验瓶/等级升级球）
-   - `shop.yml` - 商店定价
-5. 根据需要修改配置文件，执行 `/goldminer reload` 重载
+* * *
 
----
+## Command Reference
 
-## 命令参考
+### Player Commands
 
-### 玩家命令
+| Command | Description |
+| --- | --- |
+| `/goldminer join` | Join the mine world and start mining |
+| `/goldminer shop` | Open the mine shop GUI |
+| `/goldminer info` | View miner info (level/coins/crit rate, etc.) |
+| `/goldminer suit` | Toggle equipment display/hide |
+| `/goldminer buy lv <amount>` | Precisely purchase a specified number of levels |
+| `/goldminer buy lv <amount> confirm` | Confirm the level purchase |
+| `/goldminer team create` | Create a team |
+| `/goldminer team join <team name>` | Apply to join a team |
+| `/goldminer team accept [player name]` | Accept a join application |
+| `/goldminer team leave` | Leave the team (experience/level cleared) |
+| `/goldminer team list` | View the team list |
+| `/goldminer top` | View the leaderboard |
+| `/goldminer exchange [amount]` | Exchange mine coins for main world currency |
+| `/goldminer help` | View help |
 
-| 命令 | 说明 |
-|------|------|
-| `/goldminer join` | 加入矿场世界，开始挖矿 |
-| `/goldminer shop` | 打开矿场商店 GUI |
-| `/goldminer info` | 查看矿工信息（等级/金币/暴击率等） |
-| `/goldminer suit` | 切换装备显示/隐藏 |
-| `/goldminer buy lv <数量>` | 精确购买指定等级 |
-| `/goldminer buy lv <数量> confirm` | 确认执行等级购买 |
-| `/goldminer team create` | 创建小队 |
-| `/goldminer team join <队名>` | 申请加入小队 |
-| `/goldminer team accept [玩家名]` | 接受入队申请 |
-| `/goldminer team leave` | 退出小队（经验/等级清空） |
-| `/goldminer team list` | 查看小队列表 |
-| `/goldminer top` | 查看排行榜 |
-| `/goldminer exchange [数量]` | 兑换矿场金币为主世界货币 |
-| `/goldminer help` | 查看帮助 |
+### Admin Commands
 
-### 管理员命令
+| Command | Description |
+| --- | --- |
+| `/goldminer reload` | Reload configuration and refresh all layers |
+| `/goldminer reload <layer>` | Refresh only the specified layer (stone/calcite/.../bedrock) |
+| `/goldminer reload pool` | Force a full refresh of the mine (including caves and chests) |
+| `/goldminer reload info` | Refresh player data and mine world info |
+| `/goldminer shop set <key> <price>` | Hot-modify shop prices (takes effect immediately) |
+| `/goldminer set exp|lv <player> <amount>` | Set player experience/level |
+| `/goldminer add exp|lv <player> <amount>` | Add player experience/level |
+| `/goldminer remove exp|lv <player> <amount>` | Remove player experience/level |
 
-| 命令 | 说明 |
-|------|------|
-| `/goldminer reload` | 重载配置并刷新所有层级 |
-| `/goldminer reload <层级>` | 只刷新指定层级（stone/calcite/.../bedrock） |
-| `/goldminer reload pool` | 强制完整刷新矿场（含矿洞与宝箱） |
-| `/goldminer reload info` | 刷新玩家数据与矿场世界信息 |
-| `/goldminer shop set <key> <价格>` | 热修改商店价格（即时生效） |
-| `/goldminer set exp\|lv <玩家> <数量>` | 设置玩家经验/等级 |
-| `/goldminer add exp\|lv <玩家> <数量>` | 添加玩家经验/等级 |
-| `/goldminer remove exp\|lv <玩家> <数量>` | 移除玩家经验/等级 |
+* * *
 
----
+## PlaceholderAPI
 
-## PlaceholderAPI 占位符
+| Placeholder | Return Value | Description |
+| --- | --- | --- |
+| `%goldminer_reload_time%` | Integer | Mine air-ratio check interval (seconds) |
+| `%goldminer_user_level%` | Integer | Player's current level |
+| `%goldminer_user_money%` | Integer | Player's coins |
+| `%goldminer_crit_hit_rate%` | Percentage string | Crit rate (e.g., "5.0") |
+| `%goldminer_crit_magnification%` | Multiplier string | Crit multiplier (e.g., "2.5") |
+| `%goldminer_crit_time%` | Integer | Remaining time of bonus crit multiplier (seconds) |
+| `%goldminer_interlocking_type%` | String | Current chain type ("None"/Plane X/Plane Z/Radius/View Direction) |
+| `%goldminer_interlocking_time%` | Integer | Remaining time of the chain trial card (seconds) |
+| `%goldminer_nomal_interlocking_time%` | Integer | Remaining time of general chain (seconds) |
 
-| 占位符 | 返回值 | 说明 |
-|--------|--------|------|
-| `%goldminer_reload_time%` | 整数 | 矿场空气占比检测间隔（秒） |
-| `%goldminer_user_level%` | 整数 | 玩家当前等级 |
-| `%goldminer_user_money%` | 整数 | 玩家金币数 |
-| `%goldminer_crit_hit_rate%` | 百分比字符串 | 暴击率（如 "5.0"） |
-| `%goldminer_crit_magnification%` | 倍率字符串 | 暴击倍率（如 "2.5"） |
-| `%goldminer_crit_time%` | 整数 | 额外暴击倍率剩余时间（秒） |
-| `%goldminer_interlocking_type%` | 字符串 | 当前连锁类型（"无"/平面X/平面Z/半径/视角方向） |
-| `%goldminer_interlocking_time%` | 整数 | 连锁体验卡剩余时间（秒） |
-| `%goldminer_nomal_interlocking_time%` | 整数 | 一般连锁剩余时间（秒） |
+* * *
 
----
-
-## 配置文件
+## Configuration Files
 
 ### config.yml
 
-主配置文件，控制矿场参数、镐子附魔上限、药水效果、暴击系统等。
+The main configuration file, controlling mine parameters, pickaxe enchant limits, potion effects, the crit system, and more.
 
-```yaml
-# 存储设置
+```
+# Storage settings
 storage:
-  type: sqlite              # sqlite 或 mysql
+  type: sqlite              # sqlite or mysql
   mysql:
     host: localhost
     port: 3306
@@ -128,29 +126,29 @@ storage:
     username: root
     password: password
 
-# 矿场设置
+# Mine settings
 mine:
-  world-name: "goldminer_mine"  # 矿场世界名称
-  border-size: 2000             # 世界边界
-  center-size: 100              # 矿场核心区域边长（长宽）
-  check-interval: 10            # 空气占比检测间隔（秒）
-  air-threshold: 95.0           # 空气占比达到该百分比时自动完整刷新
-  refresh-batch-size: 20000     # 每 tick 处理方块数（分批刷新/扫描）
+  world-name: "goldminer_mine"  # Mine world name
+  border-size: 2000             # World border
+  center-size: 100              # Side length of the mine core area (length x width)
+  check-interval: 10            # Air-ratio check interval (seconds)
+  air-threshold: 95.0           # Auto full-refresh when air ratio reaches this percentage
+  refresh-batch-size: 20000     # Blocks processed per tick (batched refresh/scan)
 
-# 暴击系统
+# Crit system
 crit-system:
-  default-crit-rate: 0.005         # 初始暴击率（0.5%）
-  default-crit-magnification: 0.5  # 初始暴击倍率
-  bonus-crit-mag-duration: 1800    # 额外暴击倍率持续时间（秒）
-  overflow-exp-multiplier: 500.0   # 溢出暴击率转换经验倍率
+  default-crit-rate: 0.005         # Initial crit rate (0.5%)
+  default-crit-magnification: 0.5  # Initial crit multiplier
+  bonus-crit-mag-duration: 1800    # Duration of bonus crit multiplier (seconds)
+  overflow-exp-multiplier: 500.0   # Conversion multiplier for overflow crit rate into experience
 
-# 垫脚玻璃
+# Stepping glass
 glass-block:
-  material: GLASS          # 玻璃方块类型
-  name: "&f垫脚玻璃 &7(无限使用)"
-  lore: "&7可无限放置的玻璃方块"
+  material: GLASS          # Glass block type
+  name: "&fStepping Glass &7(Infinite Use)"
+  lore: "&7A glass block that can be placed infinitely"
 
-# 镐子附魔上限（按镐子等级）
+# Pickaxe enchant limits (by pickaxe level)
 pickaxe-enchant-limits:
   default: {efficiency: 5, fortune: 3, unbreaking: 3}
   iron: {efficiency: 10, ...}
@@ -160,46 +158,45 @@ pickaxe-enchant-limits:
 
 ### lang.yml
 
-语言/消息文件，所有显示文本均可在此配置：
+The language/message file; all displayed text can be configured here:
 
-```yaml
-# 挖掘消息
+```
+# Mining messages
 mining:
-  coin-earned: "&6+{coin} 金币 &7| &a+{exp} 经验"
-  level-up: "&a恭喜！你的矿工等级提升到了 &e{level} &a级！"
-  pickaxe-upgrade: "&a你的镐子已升级为 &e{pickaxe}&a！"
-  enchant-upgrade: "&a你的镐子附魔已提升！"
+  coin-earned: "&6+{coin} Coins &7| &a+{exp} Exp"
+  level-up: "&aCongratulations! Your miner level has increased to &e{level} &a!"
+  pickaxe-upgrade: "&aYour pickaxe has been upgraded to &e{pickaxe}&a!"
+  enchant-upgrade: "&aYour pickaxe enchantment has been improved!"
 
-# GUI按钮
+# GUI buttons
 gui:
   button:
-    return-spawn: {name: "&a返回主城", ...}
-    create-team: {name: "&b创建小队", ...}
+    return-spawn: {name: "&aReturn to Spawn", ...}
+    create-team: {name: "&bCreate Team", ...}
 ```
 
 ### layers.yml
 
-分层矿场定义文件。矿场从上到下依次为：石头区 → 方解石区 → 花岗岩区 → 深板岩区 →
-下界岩区 → 玄武岩区 → 黑石区 → 末地石区，最底部为 1 格基岩。
+The layered mine definition file. From top to bottom, the mine consists of: Stone Layer → Calcite Layer → Granite Layer → Deepslate Layer → Netherrack Layer → Basalt Layer → Blackstone Layer → End Stone Layer, with 1 layer of bedrock at the very bottom.
 
-```yaml
+```
 global:
-  base-weight-percent: 95.0   # 基石占整体生成概率的百分比
-  ore-weight-percent: 5.0     # 矿石/特殊方块占比
-  inherit-decay: 0.05         # 上层矿物继承到下层的衰减系数
+  base-weight-percent: 95.0   # Percentage of base blocks in overall generation probability
+  ore-weight-percent: 5.0     # Percentage of ores/special blocks
+  inherit-decay: 0.05         # Decay coefficient for ores inherited from the layer above
 
 bedrock:
-  height: 1                   # 基岩层深度
+  height: 1                   # Bedrock layer thickness
   block: BEDROCK
 
 caves:
   enabled: true
-  count-per-10000: 2          # 每 10000 方块体积的矿洞数
-  chest-chance: 0.3           # 每个矿洞出现宝箱的概率
+  count-per-10000: 2          # Number of caves per 10000 block volume
+  chest-chance: 0.3           # Chance of a chest appearing in each cave
 
 layers:
-  stone:                      # 层级名（/goldminer reload 时可用）
-    display: "&7石头区"
+  stone:                      # Layer name (usable in /goldminer reload)
+    display: "&7Stone Layer"
     height: 16
     base-blocks:
       STONE: {weight: 80.0, coin: 1, exp: 1}
@@ -208,55 +205,55 @@ layers:
       IRON_ORE: {weight: 25.0, coin: 15, exp: 8}
 ```
 
-- `weight`：在所属池中的相对权重（越大越常见）
-- `coin` / `exp`：挖掘奖励
-- `inherit: false`：该矿物只在本层刷新、不继承到下层
-- 上层矿石自动继承到下层（每深一层权重 × inherit-decay）
++   `weight`: Relative weight within its pool (higher = more common)
++   `coin` / `exp`: Mining rewards
++   `inherit: false`: The ore only spawns in this layer and is not inherited to lower layers
++   Ores from the layer above are automatically inherited to lower layers (weight × inherit-decay per layer deeper)
 
 ### loot.yml
 
-宝箱战利品定义（经验瓶与等级升级球）：
+Chest loot definitions (experience bottles and level-up balls):
 
-```yaml
+```
 exp-bottles:
-  exp-target: mine            # mine = 矿工经验 / vanilla = 原版经验条
-  stack-min: 1                # 单格堆叠数量范围
+  exp-target: mine            # mine = miner experience / vanilla = vanilla exp bar
+  stack-min: 1                # Stack size range per slot
   stack-max: 16
   types:
-    small: {name: "&a经验瓶", weight: 60.0, exp: 500, lore: [...]}
-    medium: {name: "&b经验瓶", weight: 30.0, exp: 2500, lore: [...]}
-    large: {name: "&d经验瓶", weight: 10.0, exp: 10000, lore: [...]}
+    small: {name: "&aExperience Bottle", weight: 60.0, exp: 500, lore: [...]}
+    medium: {name: "&bExperience Bottle", weight: 30.0, exp: 2500, lore: [...]}
+    large: {name: "&dExperience Bottle", weight: 10.0, exp: 10000, lore: [...]}
 
 level-balls:
-  level-target: mine          # mine = 矿工等级 / vanilla = 原版等级
+  level-target: mine          # mine = miner level / vanilla = vanilla level
   types:
-    small: {name: "&e等级升级球", weight: 60.0, levels: 1, lore: [...]}
+    small: {name: "&eLevel-Up Ball", weight: 60.0, levels: 1, lore: [...]}
 
 chest-loot:
   min-items: 2
   max-items: 10
-  exp-bottle-chance: 0.85     # 经验瓶概率（大概率）
-  level-ball-chance: 0.10     # 等级升级球概率（极小概率）
+  exp-bottle-chance: 0.85     # Experience bottle chance (high probability)
+  level-ball-chance: 0.10     # Level-up ball chance (very low probability)
 ```
 
-- 物品通过特殊 NBT 区分类型，同类型可堆叠、可放入箱子长期保存，右键使用
-- `weight`：宝箱中抽到该类型的相对概率
++   Items are distinguished by special NBT; items of the same type can be stacked and stored in chests for long-term use, and used by right-clicking
++   `weight`: Relative probability of drawing that type from a chest
 
 ### shop.yml
 
-商店定价文件，所有价格与消息均可配置：
+The shop pricing file; all prices and messages can be configured:
 
-```yaml
-# 药水商店
+```
+# Potion shop
 potion:
-  available-durations: [30, 60, 300, 600, 1800, 3600]  # 可选时长（秒）
+  available-durations: [30, 60, 300, 600, 1800, 3600]  # Available durations (seconds)
   max-level: 30
   haste:
     base-price: 30
     level-multiplier: 0.5
     duration-multiplier: 0.3
 
-# 暴击率商店
+# Crit rate shop
 crit-rate:
   base-price: 300
   tiers:
@@ -264,8 +261,8 @@ crit-rate:
     1pct: 3.0
     ...
 
-# 连锁体验卡
-# 价格公式: 基础价格 × 阶梯倍率^(范围-1)
+# Chain trial card
+# Price formula: base price × tier multiplier^(range-1)
 chain-card:
   duration-seconds: 30
   plane_x: {base-price: 8000, tier-multiplier: 3.0}
@@ -273,12 +270,12 @@ chain-card:
   radius:  {base-price: 15000, tier-multiplier: 3.5}
   ray:     {base-price: 6000,  tier-multiplier: 2.5}
 
-# 一般连锁
+# General chain
 global-chain:
   price: 100
-  duration-seconds: 10800    # 3小时
+  duration-seconds: 10800    # 3 hours
 
-# 商店图标
+# Shop icons
 shop-icons:
   chain-card-plane-x: OAK_PLANKS
   chain-card-plane-z: OAK_PLANKS
@@ -286,171 +283,173 @@ shop-icons:
   chain-card-ray: ARROW
 ```
 
----
+* * *
 
-## 功能详解
+## Feature Details
 
-### 矿场系统
+### Mine System
 
-- 独立的共享矿场世界（`goldminer_mine`）
-- 矿场为分层立方体，从上到下：石头区 → 方解石区 → 花岗岩区 → 深板岩区 → 下界岩区 → 玄武岩区 → 黑石区 → 末地石区，最底部 1 格基岩
-- 每层由基石（默认占 90%）与矿石（默认占 10%）构成；上层矿石逐层衰减继承到下层
-- 矿场内部随机生成矿洞，部分矿洞刷新宝箱（经验瓶 / 等级升级球）
-- 不再定时刷新：空气方块占矿场总体积 95%（可调）时自动完整刷新
-- 玩家在矿场顶部安全平台出生，装备自动保护
++   An independent shared mine world (`goldminer_mine`)
++   The mine is a layered cube; from top to bottom: Stone Layer → Calcite Layer → Granite Layer → Deepslate Layer → Netherrack Layer → Basalt Layer → Blackstone Layer → End Stone Layer, with 1 layer of bedrock at the very bottom
++   Each layer consists of base blocks (default 90%) and ores (default 10%); ores from the layer above are inherited to lower layers with decay
++   Caves are randomly generated inside the mine; some caves spawn chests (experience bottles / level-up balls)
++   No more scheduled refresh: the mine automatically fully refreshes when air blocks account for 95% (adjustable) of the mine's total volume
++   Players spawn on a safe platform at the top of the mine; equipment is automatically protected
 
-**进入与退出**：
-- 执行 `/goldminer join` → 传送到矿场 → 获得木镐 + 菜单星 + 无限垫脚玻璃
-- 退出矿场世界（传送回主世界）→ 自动清除矿场追踪 → 可重新 join
+**Entering & Exiting**:
 
-**手动刷新**：
-- `/goldminer reload` → 重载配置并刷新所有层级
-- `/goldminer reload <层级>` → 只刷新指定层级（如 stone、deepslate、netherrack、bedrock）
-- `/goldminer reload pool` → 强制完整刷新（含矿洞与宝箱）
++   Run `/goldminer join` → teleport to the mine → receive a wooden pickaxe + menu star + infinite stepping glass
++   Exit the mine world (teleport back to the main world) → mine tracking is automatically cleared → you can `join` again
 
-### 镐子升级
+**Manual Refresh**:
 
-玩家挖矿获得经验 → 逐级提升等级 → 自动升级镐子：
++   `/goldminer reload` → Reload configuration and refresh all layers
++   `/goldminer reload <layer>` → Refresh only the specified layer (e.g., stone, deepslate, netherrack, bedrock)
++   `/goldminer reload pool` → Force a full refresh (including caves and chests)
 
-| 镐子 | 升级条件 | 附魔上限 |
-|------|----------|----------|
-| 木镐 | 初始 | 效率5 / 时运3 / 耐久3 |
-| 石镐 | Lv.2 | 效率5 / 时运3 / 耐久3 |
-| 铜镐 | Lv.22 | 效率5 / 时运3 / 耐久3 |
-| 金镐 | Lv.42 | 效率5 / 时运3 / 耐久3 |
-| 铁镐 | Lv.72 | 效率10 / 时运3 / 耐久3 |
-| 钻石镐 | Lv.102 | 效率30 / 时运10 / 耐久5 |
-| 下界合金镐 | Lv.132 | 效率255 / 时运15 / 耐久10 |
+### Pickaxe Upgrades
 
-- 每级附魔逐级提升，满后晋升下一镐子等级
-- 晋升时随机继承一个满级附魔
-- 装备随镐子等级自动更换（可 `/goldminer suit` 切换显隐）
+Players mine to earn experience → level up progressively → pickaxes upgrade automatically:
 
-### 暴击系统
+| Pickaxe | Upgrade Requirement | Enchant Limits |
+| --- | --- | --- |
+| Wooden Pickaxe | Initial | Efficiency 5 / Fortune 3 / Unbreaking 3 |
+| Stone Pickaxe | Lv.2 | Efficiency 5 / Fortune 3 / Unbreaking 3 |
+| Copper Pickaxe | Lv.22 | Efficiency 5 / Fortune 3 / Unbreaking 3 |
+| Golden Pickaxe | Lv.42 | Efficiency 5 / Fortune 3 / Unbreaking 3 |
+| Iron Pickaxe | Lv.72 | Efficiency 10 / Fortune 3 / Unbreaking 3 |
+| Diamond Pickaxe | Lv.102 | Efficiency 30 / Fortune 10 / Unbreaking 5 |
+| Netherite Pickaxe | Lv.132 | Efficiency 255 / Fortune 15 / Unbreaking 10 |
 
-- **暴击率**：挖矿时独立判定，初始 0.5%，可购买提升至 100%
-- **暴击倍率**：触发暴击时额外获得的倍率，初始 0.5x
-- 暴击效果：`原始金币 + 原始金币 × 暴击倍率`（四舍五入）
-- 连锁挖矿时每个方块独立暴击判定，Title 显示暴击方块数和额外金币
++   Each level improves enchantments progressively; once maxed, the pickaxe advances to the next tier
++   On advancement, one maxed enchantment is randomly inherited
++   Equipment automatically changes with pickaxe level (toggle visibility with `/goldminer suit`)
 
-**PAPI 占位符**：`%goldminer_crit_hit_rate%` / `%goldminer_crit_magnification%`
+### Crit System
 
-### 药水商店
++   **Crit Rate**: Independently determined when mining, initially 0.5%, can be purchased up to 100%
++   **Crit Multiplier**: The bonus multiplier gained when a crit triggers, initially 0.5x
++   Crit effect: `Base coins + Base coins × Crit multiplier` (rounded)
++   During chain mining, each block has an independent crit check; the Title displays the number of crit blocks and bonus coins
 
-在矿场商店 → 购买增幅 → 药水效果：
+**PAPI Placeholders**: `%goldminer_crit_hit_rate%` / `%goldminer_crit_magnification%`
 
-| 药水 | 等级范围 | 时长选项 |
-|------|----------|----------|
-| 急迫 | 1~30级 | 30秒~1小时 |
-| 速度 | 1~30级 | 同上 |
-| 幸运 | 1~30级 | 同上 |
+### Potion Shop
 
-- 购买后覆盖当前同类型效果
-- 价格公式：`基础价格 × (1 + 等级 × 等级倍率) × (1 + 时长指数 × 时长倍率)`
-- 所有参数可在 `shop.yml` 调整
+In the mine shop → Purchase Boosts → Potion Effects:
 
-### 暴击率/暴击倍率商店
+| Potion | Level Range | Duration Options |
+| --- | --- | --- |
+| Haste | 1~30 | 30 seconds~1 hour |
+| Speed | 1~30 | Same as above |
+| Luck | 1~30 | Same as above |
 
-- **暴击率**：永久提升，可选 +0.5% / 1% / 5% / 10% / 50%
-- **暴击倍率**：30 分钟临时提升，可选 1~20 倍，重复购买叠加时长和倍率
-- 暴击率满 100% 后购买溢出部分按 500% 转换为经验值
++   Purchasing overwrites the current effect of the same type
++   Price formula: `Base price × (1 + Level × Level multiplier) × (1 + Duration exponent × Duration multiplier)`
++   All parameters can be adjusted in `shop.yml`
 
-### 等级购买
+### Crit Rate / Crit Multiplier Shop
 
-- 预设：购买 1 级 / 5 级 / 10 级
-- 精确：`/goldminer buy lv <数量> confirm`
-- 价格公式：`(当前等级→目标等级所需总经验) × 经验单价系数`
-- 公式在 GUI 中公示
++   **Crit Rate**: Permanent increase, options: +0.5% / 1% / 5% / 10% / 50%
++   **Crit Multiplier**: 30-minute temporary increase, options: 1~20x, repeated purchases stack duration and multiplier
++   After crit rate reaches 100%, the overflow portion purchased is converted into experience at 500%
 
-### 连锁体验卡
+### Level Purchase
 
-在矿场商店 → 连锁体验卡（矿场世界内生效，30秒）：
++   Presets: Buy 1 level / 5 levels / 10 levels
++   Precise: `/goldminer buy lv <amount> confirm`
++   Price formula: `(Total experience required from current level → target level) × Experience unit price coefficient`
++   The formula is displayed publicly in the GUI
 
-| 类型 | 说明 | 价格公式 |
-|------|------|----------|
-| 平面X轴连锁 | 沿X轴扩展，最高15方块 | 8000 × 3.0^(N-1) |
-| 平面Z轴连锁 | 沿Z轴扩展，最高15方块 | 8000 × 3.0^(N-1) |
-| 半径范围连锁 | 球形范围，最高15半径 | 15000 × 3.5^(N-1) |
-| 视角方向连锁 | 视线前方，最高15方块+15高度 | 6000 × 2.5^(N-1) |
+### Chain Trial Card
 
-- 点击进入调配界面：`◀ 范围减` / `N方块` / `▶ 范围增`
-- 视角方向连锁额外有高度调节（`◀ 高度减` / `N格` / `▶ 高度增`）
-- 调节时界面原地刷新，光标位置不变
-- **同类型**：叠加范围+高度+时长
-- **不同类型**：覆盖旧效果，不返还金币
+In the mine shop → Chain Trial Card (effective within the mine world, 30 seconds):
 
-### 一般连锁
+| Type | Description | Price Formula |
+| --- | --- | --- |
+| Plane X-axis chain | Expands along the X-axis, up to 15 blocks | 8000 × 3.0^(N-1) |
+| Plane Z-axis chain | Expands along the Z-axis, up to 15 blocks | 8000 × 3.0^(N-1) |
+| Radius range chain | Spherical range, up to radius 15 | 15000 × 3.5^(N-1) |
+| View direction chain | In front of the line of sight, up to 15 blocks + 15 height | 6000 × 2.5^(N-1) |
 
-在矿场商店 → 一般连锁（矿场世界外全地图生效）：
++   Click to enter the adjustment interface: `◀ Range -` / `N blocks` / `▶ Range +`
++   The view direction chain additionally has height adjustment (`◀ Height -` / `N blocks` / `▶ Height +`)
++   When adjusting, the interface refreshes in place without moving the cursor
++   **Same type**: Stacks range + height + duration
++   **Different type**: Overwrites the old effect without refunding coins
 
-- **价格**：100 金币
-- **时长**：3 小时（可叠加）
-- **范围**：9×9×3 同类型方块
-- 挖掘矿石/木头时自动连锁同类型相邻方块
-- 连锁掉落受玩家工具附魔影响（时运等）
-- 矿场世界内不生效（互不干扰）
+### General Chain
 
-### 小队系统
+In the mine shop → General Chain (effective across the entire map outside the mine world):
 
-- `/goldminer team create` 创建小队（聊天栏输入名称）
-- `/goldminer team join <队名>` 申请加入
-- 队长 `/goldminer team accept [玩家名]` 接受申请
-- 退出小队 → 经验/等级/镐子清空（金币保留）
-- 成员上限 10 人
++   **Price**: 100 coins
++   **Duration**: 3 hours (stackable)
++   **Range**: 9×9×3 blocks of the same type
++   Automatically chains adjacent blocks of the same type when mining ores/wood
++   Chain drops are affected by the player's tool enchantments (Fortune, etc.)
++   Does not take effect inside the mine world (no interference with each other)
 
-### 货币兑换
+### Team System
 
-- 矿场金币可兑换为主世界货币（需 Vault）
-- 汇率：`1 矿场金币 = X 主世界货币`（config.yml 可调）
-- GUI 提供 10/100/1000 快捷兑换，也支持聊天栏输入自定义数量
++   `/goldminer team create` creates a team (enter the name in chat)
++   `/goldminer team join <team name>` applies to join
++   Team leader `/goldminer team accept [player name]` accepts applications
++   Leaving a team → experience/level/pickaxe cleared (coins retained)
++   Maximum members: 10
 
----
+### Currency Exchange
 
-## 权限节点
++   Mine coins can be exchanged for main world currency (requires Vault)
++   Exchange rate: `1 mine coin = X main world currency` (adjustable in config.yml)
++   The GUI provides quick exchanges of 10/100/1000, and also supports entering a custom amount in chat
 
-| 权限 | 说明 | 默认 |
-|------|------|------|
-| `goldminer.join` | 加入矿场 | true |
-| `goldminer.suit` | 切换装备显示 | true |
-| `goldminer.team.create` | 创建小队 | true |
-| `goldminer.team.join` | 加入小队 | true |
-| `goldminer.team.accept` | 接受入队申请 | true |
-| `goldminer.team.leave` | 退出小队 | true |
-| `goldminer.team.list` | 查看小队列表 | true |
-| `goldminer.top` | 查看排行榜 | true |
-| `goldminer.exchange` | 货币兑换 | true |
-| `goldminer.admin` | 管理员权限 | op |
+* * *
 
----
+## Permission Nodes
 
-## 常见问题
+| Permission | Description | Default |
+| --- | --- | --- |
+| `goldminer.join` | Join the mine | true |
+| `goldminer.suit` | Toggle equipment display | true |
+| `goldminer.team.create` | Create a team | true |
+| `goldminer.team.join` | Join a team | true |
+| `goldminer.team.accept` | Accept join applications | true |
+| `goldminer.team.leave` | Leave a team | true |
+| `goldminer.team.list` | View the team list | true |
+| `goldminer.top` | View the leaderboard | true |
+| `goldminer.exchange` | Currency exchange | true |
+| `goldminer.admin` | Administrator permission | op |
 
-**Q：加入矿场后看不到矿物？**
-A：矿场为 101×101×100 立方体（长宽由 `mine.center-size` 决定，高度由 `layers.yml` 各层高度决定），从 y=0 到 y=100。请确认你所处位置在矿场范围内。
+* * *
 
-**Q：矿场不自动刷新？**
-A：矿场不再定时刷新。插件每 `mine.check-interval` 秒扫描一次空气占比，当空气方块占矿场总体积的 `mine.air-threshold`% 时自动完整刷新。也可执行 `/goldminer reload`（全部层级）或 `/goldminer reload <层级>`（单层）手动刷新。
+## FAQ
 
-**Q：升级后镐子没有变化？**
-A：镐子在快捷栏第 1 格，升级后自动替换。如有旧镐子残留，重新 `/goldminer join` 即可。
+**Q: I can't see any ores after joining the mine?**  
+A: The mine is a 101×101×100 cube (length and width determined by `mine.center-size`, height determined by each layer's height in `layers.yml`), from y=0 to y=100. Please confirm that your position is within the mine area.
 
-**Q：连锁体验卡到期后还能连锁吗？**
-A：不能。连锁体验卡仅在购买后 30 秒内生效，到期自动失效。
+**Q: The mine doesn't refresh automatically?**  
+A: The mine no longer refreshes on a timer. The plugin scans the air ratio every `mine.check-interval` seconds, and automatically performs a full refresh when air blocks account for `mine.air-threshold`% of the mine's total volume. You can also run `/goldminer reload` (all layers) or `/goldminer reload <layer>` (single layer) to refresh manually.
 
-**Q：一般连锁在矿场世界内生效吗？**
-A：不生效。矿场世界内请购买连锁体验卡。一般连锁仅在矿场外的世界生效。
+**Q: The pickaxe doesn't change after upgrading?**  
+A: The pickaxe is in the first slot of the hotbar and is automatically replaced after upgrading. If an old pickaxe remains, simply run `/goldminer join` again.
 
-**Q：如何修改商店价格？**
-A：方式一：直接编辑 `shop.yml` 后 `/goldminer reload`。方式二：`/goldminer shop set <key> <价格>` 即时生效。
+**Q: Can I still chain after the chain trial card expires?**  
+A: No. The chain trial card is only effective for 30 seconds after purchase and automatically expires afterward.
 
-**Q：PAPI 占位符不显示？**
-A：确保已安装 PlaceholderAPI 插件，未安装时占位符静默忽略不影响插件运行。
+**Q: Does the general chain take effect inside the mine world?**  
+A: No. Inside the mine world, please purchase a chain trial card. The general chain only takes effect in worlds outside the mine.
 
-**Q：服务器重启后矿场不刷新？**
-A：插件会自动重建矿场方块追踪列表，首次刷新生效后恢复正常。
+**Q: How do I modify shop prices?**  
+A: Method 1: Directly edit `shop.yml` and then `/goldminer reload`. Method 2: `/goldminer shop set <key> <price>` takes effect immediately.
 
----
+**Q: PAPI placeholders are not displaying?**  
+A: Make sure the PlaceholderAPI plugin is installed. When it is not installed, placeholders are silently ignored and do not affect the plugin's operation.
 
-**作者**: 未定awa  
-**版本**: 2.1.3  
-**兼容**: Purpur 1.21.11
+**Q: The mine doesn't refresh after a server restart?**  
+A: The plugin will automatically rebuild the mine block tracking list, and normal operation resumes after the first refresh.
+
+* * *
+
+**Author**: 未定awa  
+**Version**: 2.1.3  
+**Compatibility**: Purpur 1.21.11
