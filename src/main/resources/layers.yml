@@ -38,11 +38,51 @@ caves:
   # 矿洞随机游走长度范围（步数）
   min-length: 25
   max-length: 55
-  # 矿洞截面半径范围
+  # 矿洞截面半径范围（每个矿洞随机一个半径）
   min-radius: 1
-  max-radius: 2
+  max-radius: 3
   # 每个矿洞放置宝箱的概率
   chest-chance: 0.4
+
+  # 大型矿洞：半径达到该值的矿洞视为大型矿洞
+  # 大型矿洞会铺设铁轨，宝箱会替换为箱子矿车（类似原版废弃矿洞）
+  large-radius: 3
+
+  # 矿洞装饰（火把/灯/蜘蛛网）
+  decorations:
+    # 每个路径步放置火把的概率
+    torch-chance: 0.12
+    # 每个路径步放置灯（悬挂）的概率
+    lantern-chance: 0.04
+    # 每个路径步放置蜘蛛网的概率
+    cobweb-chance: 0.06
+
+  # 大型矿洞铁轨
+  rails:
+    # 每个大型矿洞最多铺设的铁轨数
+    max-per-cave: 14
+
+  # 普通矿洞敌对生物
+  normal-mobs:
+    # 每个普通矿洞刷新的生物数量范围（最多不超过 max-per-cave）
+    min-per-cave: 1
+    max-per-cave: 3
+    # 随机生物类型（蜘蛛/僵尸等敌对生物）
+    types: [ZOMBIE, SPIDER]
+
+  # 硫黄矿洞（偶发替换普通矿洞，仅深层刷新）
+  sulfur-cave:
+    # 普通矿洞被替换为硫黄矿洞的概率（小概率）
+    chance: 0.1
+    # 仅在矿场该深度以下刷新（% 矿场总高度，100=最深处；防止接近地表刷新）
+    # 注：配置了 sulfur 层时自动以硫黄层顶部为深度上限，此值作为无硫黄层时的回退
+    min-depth-percent: 60
+    # 硫黄矿洞宝箱爆率提升倍率（在 chest-chance 基础上放大）
+    chest-chance-boost: 1.5
+    # 硫黄矿洞内的随机生物（找不到时回退为 MAGMA_CUBE）
+    sulfur-mob: SULFUR_CUBE
+    mob-min: 1
+    mob-max: 3
 
 layers:
   # ---------- 石头区（最上层） ----------
@@ -115,6 +155,38 @@ layers:
         weight: 4.0
         coin: 500
         exp: 100
+
+  # ---------- 硫黄区（方解石下方，厚度 5~12 方块） ----------
+  sulfur:
+    display: "&e硫黄区"
+    height: 8
+    base-blocks:
+      SULFUR:
+        weight: 70.0
+        coin: 3
+        exp: 1
+      POLISHED_SULFUR:
+        weight: 20.0
+        coin: 4
+        exp: 2
+      SULFUR_BRICKS:
+        weight: 10.0
+        coin: 5
+        exp: 2
+    ores:
+      # 烈性硫黄：向下两层扩散（inherit），并零星扩散到上一层（inherit-up）
+      POTENT_SULFUR:
+        weight: 6.0
+        coin: 600
+        exp: 150
+        inherit: true
+        inherit-up: 0.05
+      # 硫黄尖锥：仅本层刷新
+      SULFUR_SPIKE:
+        weight: 8.0
+        coin: 120
+        exp: 40
+        inherit: false
 
   # ---------- 花岗岩区 ----------
   granite:

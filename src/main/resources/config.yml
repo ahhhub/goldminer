@@ -28,7 +28,7 @@ mine:
   air-threshold: 95.0
   # 矿场生成代际版本：修改矿场生成机制（层级/矿洞/宝箱）后递增此值，
   # 玩家下次进入矿场时检测到旧版本矿场会自动重建
-  generation-version: 3
+  generation-version: 4
   # 每 tick 处理的方块数（分批刷新/扫描，避免卡顿；越低越流畅但刷新越慢）
   refresh-batch-size: 20000
 

@@ -1,6 +1,6 @@
 name: GoldMiner
-version: 2.2.0
-main: com.godminer.GoldMiner
+version: '2.3.0'
+main: top.nekolove.goldminer.GoldMiner
 api-version: "1.21"
 author: 未定awa
 description: A mining mini-game plugin for Purpur server

@@ -97,10 +97,11 @@ glass:
   name: "&f垫脚玻璃 &7(无限使用)"
   lore: "&7可无限放置的玻璃方块"
 
-# 特殊物品（经验瓶 / 等级升级球）
+# 特殊物品（经验瓶 / 等级升级球 / 金币袋）
 special-items:
   exp-bottle-used: "&a你使用了 &e经验瓶&a，获得 &e{amount} &a点矿工经验！"
   level-ball-used: "&a你使用了 &e等级升级球&a，矿工等级提升了 &e{levels} &a级！"
+  coin-bag-used: "&a你打开了 &e{name}&a，获得 &6{coins} &a金币！"
 
 # Boss血条
 bossbar:

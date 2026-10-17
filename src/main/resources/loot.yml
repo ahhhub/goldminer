@@ -1,7 +1,9 @@
 # ==================== GoldMiner 宝箱战利品配置 ====================
-# 矿洞中的宝箱会随机刷新经验瓶与等级升级球。
-# 两种物品都带有特殊 NBT（PersistentDataContainer），
+# 矿洞中的宝箱会随机刷新经验瓶、等级升级球与金币袋。
+# 这些物品都带有特殊 NBT（PersistentDataContainer），
 # 同类型的物品 NBT 一致，可正常堆叠；可放入背包/箱子中长期保存，右键使用。
+#
+# premium: true 的类型为"高数值"类型，硫黄矿洞宝箱会以更高权重抽取它们。
 
 # ---------- 经验瓶（材质: EXPERIENCE_BOTTLE） ----------
 exp-bottles:
@@ -30,6 +32,7 @@ exp-bottles:
     large:
       name: "&d经验瓶"
       weight: 10.0
+      premium: true
       exp: 10000
       lore:
         - "&7右键使用"
@@ -62,10 +65,54 @@ level-balls:
     large:
       name: "&6等级升级球"
       weight: 10.0
+      premium: true
       levels: 5
       lore:
         - "&7右键使用"
         - "&7立即提升 &e5 &7个矿工等级"
+
+# ---------- 金币袋（材质: 不同颜色的原版收纳袋） ----------
+# 金币袋为一次性物品，不可堆叠；不同颜色的收纳袋携带不同的特殊 NBT，
+# 手持金币袋右键使用：根据 NBT 给予对应金币、提示消息并回收该物品。
+coin-bags:
+  # 默认材质（type 未指定 material 时使用）
+  material: BUNDLE
+  types:
+    small:
+      # 不同颜色的收纳袋 = 不同数值的金币袋
+      material: RED_BUNDLE
+      name: "&c小号金币袋"
+      weight: 70.0
+      coins: 1000
+      lore:
+        - "&7右键使用（一次性，不可堆叠）"
+        - "&7打开后获得 &6{coins} &7金币"
+    medium:
+      material: YELLOW_BUNDLE
+      name: "&e中号金币袋"
+      weight: 22.0
+      coins: 5000
+      lore:
+        - "&7右键使用（一次性，不可堆叠）"
+        - "&7打开后获得 &6{coins} &7金币"
+    large:
+      material: LIME_BUNDLE
+      name: "&a大号金币袋"
+      weight: 7.0
+      premium: true
+      coins: 20000
+      lore:
+        - "&7右键使用（一次性，不可堆叠）"
+        - "&7打开后获得 &6{coins} &7金币"
+    huge:
+      material: PURPLE_BUNDLE
+      name: "&5巨型金币袋"
+      weight: 1.0
+      premium: true
+      coins: 100000
+      lore:
+        - "&7右键使用（一次性，不可堆叠）"
+        - "&7打开后获得 &6{coins} &7金币"
 
 # ---------- 宝箱整体设置 ----------
 chest-loot:
@@ -77,3 +124,19 @@ chest-loot:
   exp-bottle-chance: 0.85
   # 等级升级球概率（极小概率）
   level-ball-chance: 0.10
+  # 金币袋概率（普通矿洞仅有较低概率）
+  coin-bag-chance: 0.04
+
+  # 硫黄矿洞宝箱加成（宝箱爆率更高、更偏向高数值物品、数量更多）
+  sulfur-cave:
+    # 硫黄矿洞每个宝箱的物品格数量范围（比普通矿洞多）
+    min-items: 6
+    max-items: 14
+    exp-bottle-chance: 0.70
+    level-ball-chance: 0.20
+    # 硫黄矿洞金币袋概率（显著提升）
+    coin-bag-chance: 0.30
+    # 高数值（premium: true）类型在硫黄矿洞中的权重放大倍率
+    premium-weight-multiplier: 3.0
+    # 硫黄矿洞物品单格数量放大倍率
+    stack-multiplier: 1.5

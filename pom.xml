@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.godminer</groupId>
+    <groupId>top.nekolove</groupId>
     <artifactId>GoldMiner</artifactId>
-    <version>2.2.0</version>
+    <version>2.3.0</version>
     <packaging>jar</packaging>
 
     <name>GoldMiner</name>
-    <description>A mining mini-game plugin for Purpur 1.21.11</description>
+    <description>A mining mini-game plugin for Purpur 26.2</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -37,11 +37,11 @@
     </repositories>
 
     <dependencies>
-        <!-- Paper API (Purpur) for 1.21.11 -->
+        <!-- Paper API (Purpur) for 26.2 -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <version>26.2.build.119-stable</version>
             <scope>provided</scope>
         </dependency>
 
@@ -110,15 +110,15 @@
                             <relocations>
                                 <relocation>
                                     <pattern>org.sqlite</pattern>
-                                    <shadedPattern>com.godminer.libs.sqlite</shadedPattern>
+                                    <shadedPattern>top.nekolove.goldminer.libs.sqlite</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.mysql</pattern>
-                                    <shadedPattern>com.godminer.libs.mysql</shadedPattern>
+                                    <shadedPattern>top.nekolove.goldminer.libs.mysql</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.zaxxer.hikari</pattern>
-                                    <shadedPattern>com.godminer.libs.hikari</shadedPattern>
+                                    <shadedPattern>top.nekolove.goldminer.libs.hikari</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
